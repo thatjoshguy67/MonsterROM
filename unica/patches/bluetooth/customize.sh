@@ -310,7 +310,17 @@ elif xxd -p -c 0 "$TMP_DIR/apex_payload/lib64/libbluetooth_jni.so" | grep -q "88
     HEX_PATCH "$TMP_DIR/apex_payload/lib64/libbluetooth_jni.so" \
         "8876523948050037" "887652392a000014" > /dev/null
 else
-    ABORT "No known VaultKeeper patch available for libbluetooth_jni.so"
+    # The One UI 9 source firmware restructured this code, so none of the
+    # known TBNZ signatures match and VaultKeeper cannot be disabled here.
+    # This is not fatal to the build: leave libbluetooth_jni.so unpatched
+    # and warn instead of aborting. Bluetooth may misbehave until the patch
+    # is regenerated against the current firmware.
+    # shellcheck disable=SC2317
+    if $DEBUG; then
+        ABORT "No known VaultKeeper patch available for libbluetooth_jni.so"
+    else
+        LOGW "No known VaultKeeper patch available for libbluetooth_jni.so, skipping"
+    fi
 fi
 
 BUILD_APK_IN_APEX "$BLUETOOTH_APK"
