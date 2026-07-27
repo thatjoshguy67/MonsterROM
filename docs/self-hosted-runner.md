@@ -31,11 +31,19 @@ The workflow no longer installs packages per run, so do it here:
 ```bash
 sudo apt update && sudo apt install -y \
   attr bc brotli ccache clang cmake cpio curl ffmpeg file git jq lz4 lld make \
-  openjdk-17-jdk p7zip-full protobuf-compiler python3 python3-venv rsync \
-  vim-common webp zip unzip zstd \
-  libbrotli-dev libbz2-dev libgtest-dev libprotobuf-dev libunwind-dev \
-  libpcre2-dev libzstd-dev
+  openjdk-17-jdk p7zip-full pkg-config protobuf-compiler python3 python3-venv \
+  rsync vim-common webp zip unzip zstd \
+  libbrotli-dev libbz2-dev libgtest-dev liblz4-dev libprotobuf-dev \
+  libunwind-dev libpcre2-dev libzstd-dev
 ```
+
+Note `pkg-config` and `liblz4-dev`: they are absent from the apt list the
+workflow used to run, because GitHub-hosted images ship them preinstalled.
+On a clean Ubuntu they are not present, and `build_dependencies` fails while
+configuring android-tools with `Could NOT find PkgConfig`.
+
+If a later run fails with a similar `Could NOT find <X>` from CMake, it is
+the same class of problem: install that library's `-dev` package and re-run.
 
 ## 4. Check the kernel can mount EROFS and F2FS
 
