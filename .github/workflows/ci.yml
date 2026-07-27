@@ -1,11 +1,15 @@
 name: CI
 
+# The build job runs on a self-hosted runner, so pull_request is NOT a
+# trigger: on a public repo it would let anyone execute code from a fork
+# on the runner machine. Restore it only if build moves back to a
+# GitHub-hosted runner.
 on:
   workflow_dispatch:
-  pull_request:
   push:
     branches:
       - 'sixteen'
+      - 'seventeen'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -54,7 +58,12 @@ jobs:
   build:
     name: Build
     needs: [shellcheck, generate-matrix]
-    runs-on: ubuntu-24.04
+    # Self-hosted so out/odin and out/fw survive between runs: the build
+    # system's .downloaded/.extracted markers then skip the ~15GB firmware
+    # download and go straight to building.
+    # Host prerequisites are installed once by hand, not per run; see
+    # docs/self-hosted-runner.md.
+    runs-on: [self-hosted, linux, x64]
 
     strategy:
       fail-fast: false
@@ -66,30 +75,17 @@ jobs:
         uses: actions/checkout@v7
         with:
           submodules: 'recursive'
+          # Required: the default (clean: true) runs `git clean -ffdx`,
+          # and -x deletes ignored files - which would wipe out/ and the
+          # cached firmware on every run, defeating the whole point.
+          clean: false
 
-      - name: Free disk space (1/3)
-        run: |
-          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
-          sudo docker image prune --all --force
-          sudo docker builder prune -a
-
-      - name: Free disk space (2/3)
-        uses: jlumbroso/free-disk-space@main
-        with:
-          tool-cache: true
-
-      - name: Free disk space (3/3)
-        uses: rokibhasansagar/slimhub_actions@main
-        with:
-          retain: 'compiler_cmake'
+      # NOTE: the "Free disk space" steps used by GitHub-hosted runners are
+      # deliberately absent. They rm -rf /usr/share/dotnet, /opt/ghc and
+      # friends, which would damage a real machine.
 
       - name: Set up build environment
         run: |
-          sudo apt update
-          DEBIAN_FRONTEND=noninteractive sudo apt install -yq \
-            attr ccache clang ffmpeg libbrotli-dev libbz2-dev \
-            libgtest-dev libprotobuf-dev libunwind-dev libpcre2-dev \
-            libzstd-dev linux-modules-extra-$(uname -r) lld protobuf-compiler webp
           sudo modprobe erofs f2fs
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -123,6 +119,7 @@ jobs:
       - name: Build dependencies
         run: ./scripts/build_dependencies.sh
 
+      # Skipped automatically when out/odin already holds this firmware.
       - name: Download stock firmwares
         uses: nick-fields/retry@v4
         with:
