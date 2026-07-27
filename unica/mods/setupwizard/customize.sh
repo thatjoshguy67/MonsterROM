@@ -2,17 +2,20 @@
 DECODE_APK "system" "system/priv-app/SecSetupWizard_Global/SecSetupWizard_Global.apk"
 
 _SETUPWIZARD_APK_DIR="$APKTOOL_DIR/system/priv-app/SecSetupWizard_Global/SecSetupWizard_Global.apk"
-_SETUPWIZARD_LIST_SMALI="$_SETUPWIZARD_APK_DIR/smali/e7/f.smali"
 _SETUPWIZARD_ACTIVITY_SMALI="$_SETUPWIZARD_APK_DIR/smali/com/sec/android/app/SecSetupWizard/SecSetupWizardActivity.smali"
+
+_SETUPWIZARD_LIST_SMALI="$(find "$_SETUPWIZARD_APK_DIR" -type f -name "*.smali" \
+    -exec grep -l "navigationbar_setting" {} +)"
+if [ -z "$_SETUPWIZARD_LIST_SMALI" ] || \
+        [ "$(printf "%s\n" "$_SETUPWIZARD_LIST_SMALI" | wc -l)" -ne 1 ]; then
+    LOG "\033[0;31m! ERROR: failed to resolve the Setup Wizard list builder\033[0m"
+    return 1
+fi
 
 LOG "- Enabling navigation bar type settings step"
 if grep -q "navigationbar_setting" "$_SETUPWIZARD_LIST_SMALI"; then
-    SMALI_PATCH "system" "system/priv-app/SecSetupWizard_Global/SecSetupWizard_Global.apk" \
-        "smali/e7/f.smali" "replace" \
-        "d(Landroid/content/Context;Z)Ljava/util/ArrayList;" \
-        "navigationbar_setting" \
-        "this_string_does_not_exist" \
-        > /dev/null
+    sed -i "s/navigationbar_setting/this_string_does_not_exist/g" \
+        "$_SETUPWIZARD_LIST_SMALI"
 fi
 if grep -q "navigationbar_setting" "$_SETUPWIZARD_ACTIVITY_SMALI"; then
     SMALI_PATCH "system" "system/priv-app/SecSetupWizard_Global/SecSetupWizard_Global.apk" \
