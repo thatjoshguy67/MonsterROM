@@ -728,8 +728,29 @@ if $SOURCE_LCD_SUPPORT_MDNIE_HW && [[ "$SOURCE_LCD_CONFIG_COLOR_WEAKNESS_SOLUTIO
             APPLY_PATCH "system" "system/framework/framework.jar" \
                 "$MODPATH/mdnie/hw/framework.jar/0002-Disable-A11Y_COLOR_BOOL_SUPPORT_DMC_COLORWEAKNESS.patch"
         fi
-        APPLY_PATCH "system" "system/framework/services.jar" \
-            "$MODPATH/mdnie/hw/services.jar/0001-Disable-HW-mDNIe.patch"
+        SMALI_PATCH "system" "system/framework/services.jar" \
+            "smali/com/android/server/accessibility/AccessibilityManagerService.smali" "null" \
+            "semToggleDarkScreenMode()V"
+        SMALI_PATCH "system" "system/framework/services.jar" \
+            "smali_classes2/com/samsung/android/hardware/display/SemMdnieManagerService.smali" "return" \
+            "setmDNIeAccessibilityMode(IZ)Z" \
+            "false"
+        SMALI_PATCH "system" "system/framework/services.jar" \
+            "smali_classes2/com/samsung/android/hardware/display/SemMdnieManagerService.smali" "return" \
+            "setmDNIeColorBlind(Z[I)Z" \
+            "false"
+        SMALI_PATCH "system" "system/framework/services.jar" \
+            "smali_classes2/com/samsung/android/hardware/display/SemMdnieManagerService.smali" "return" \
+            "setmDNIeNegative(Z)Z" \
+            "false"
+        SMALI_PATCH "system" "system/framework/services.jar" \
+            "smali_classes2/com/samsung/android/hardware/display/SemMdnieManagerService.smali" "return" \
+            "setmDNIeScreenCurtain(Z)Z" \
+            "false"
+        SMALI_PATCH "system" "system/framework/services.jar" \
+            "smali_classes2/com/samsung/android/knox/custom/KnoxCustomManagerService.smali" "return" \
+            "setScreenCurtainDirect()I" \
+            "-0x6"
     fi
 elif $SOURCE_LCD_SUPPORT_MDNIE_HW && [[ "$SOURCE_LCD_CONFIG_COLOR_WEAKNESS_SOLUTION" == "0" ]]; then
     # TODO handle these conditions
