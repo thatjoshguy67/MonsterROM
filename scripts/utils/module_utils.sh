@@ -103,10 +103,13 @@ APPLY_PATCH()
         else
             rm -f "$RESOLVED_PATCH"
             RESOLVED_PATCH=""
+        fi
 
+        if ! LC_ALL=C git apply --check --directory="$TARGET_DIR" --unsafe-paths "$PATCH_TO_APPLY" &> /dev/null; then
             case "$PATCH" in
                 *"/audio/virtual_vib/SecSettings.apk/0001-Disable-virtual-vibration-support.patch")
                     LOG "- Skipping obsolete SecSettings virtual-vibration patch"
+                    [ -n "$RESOLVED_PATCH" ] && rm -f "$RESOLVED_PATCH"
                     return 0
                     ;;
             esac
