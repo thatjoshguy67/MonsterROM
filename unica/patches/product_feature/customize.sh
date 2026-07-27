@@ -370,8 +370,21 @@ if [[ "$SOURCE_FINGERPRINT_CONFIG_SENSOR" != "$TARGET_FINGERPRINT_CONFIG_SENSOR"
 
                 APPLY_PATCH "system" "system/framework/framework.jar" \
                     "$MODPATH/fingerprint/optical_fod/framework.jar/0001-Add-optical-FOD-support.patch"
-                APPLY_PATCH "system" "system/framework/services.jar" \
-                    "$MODPATH/fingerprint/optical_fod/services.jar/0001-Add-optical-FOD-support.patch"
+                SMALI_PATCH "system" "system/framework/services.jar" \
+                    "smali/com/android/server/biometrics/SemBiometricFeature.smali" "replace" \
+                    "<clinit>()V" \
+                    "optical" \
+                    "ultrasonic"
+                SMALI_PATCH "system" "system/framework/services.jar" \
+                    "smali/com/android/server/biometrics/SemBiometricFeature.smali" "replace" \
+                    "<clinit>()V" \
+                    "sput-boolean v0, Lcom/android/server/biometrics/SemBiometricFeature;->FP_FEATURE_SENSOR_IS_OPTICAL:Z" \
+                    "sput-boolean v2, Lcom/android/server/biometrics/SemBiometricFeature;->FP_FEATURE_SENSOR_IS_OPTICAL:Z"
+                SMALI_PATCH "system" "system/framework/services.jar" \
+                    "smali/com/android/server/biometrics/SemBiometricFeature.smali" "replace" \
+                    "<clinit>()V" \
+                    "sput-boolean v2, Lcom/android/server/biometrics/SemBiometricFeature;->FP_FEATURE_SENSOR_IS_ULTRASONIC:Z" \
+                    "sput-boolean v0, Lcom/android/server/biometrics/SemBiometricFeature;->FP_FEATURE_SENSOR_IS_ULTRASONIC:Z"
                 APPLY_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
                     "$MODPATH/fingerprint/optical_fod/SecSettings.apk/0001-Add-optical-FOD-support.patch"
                 APPLY_PATCH "system_ext" "priv-app/SystemUI/SystemUI.apk" \
