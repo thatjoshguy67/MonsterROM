@@ -121,10 +121,13 @@ jobs:
         run: ./scripts/build_dependencies.sh
 
       # Skipped automatically when out/odin already holds this firmware.
+      # The timeout covers BOTH firmwares (source + target) plus unzip and
+      # md5 verification: on a cold cache that is well over 30GB, and 60
+      # minutes was not enough to finish the second one.
       - name: Download stock firmwares
         uses: nick-fields/retry@v4
         with:
-          timeout_minutes: 60
+          timeout_minutes: 180
           max_attempts: 3
           retry_on: error
           command: ./scripts/download_fw.sh
