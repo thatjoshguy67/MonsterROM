@@ -3,6 +3,15 @@ From: Salvo Giangreco <giangrecosalvo9@gmail.com>
 Date: Mon, 6 Oct 2025 15:12:32 +0200
 Subject: [PATCH] Introduce KeyboxImitationHooks
 
+The onListEntries hook for IKeystoreService$Stub$Proxy was dropped for the
+One UI 9 source: it was the only hunk anchored on the listEntries method's
+@Deprecated annotation, whose context drifted in the recompiled AIDL, so
+git apply failed at IKeystoreService$Stub$Proxy.smali:703. Every other
+Keystore hook (getSecurityLevel, getKeyEntry, generateKey, onGrant, the
+IKeystoreSecurityLevel proxies and the KeyStore2 hook) still applies, so
+attestation spoofing is intact; only the listEntries stealth path is lost.
+Restore it by re-anchoring against the current listEntries method if needed.
+
 ---
  .../android/security/KeyStore2.smali          |    8 +-
  .../IKeystoreSecurityLevel$Stub$Proxy.smali   |   52 +-
@@ -208,22 +217,6 @@ index bf76de8..5c16d4a 100644
 +    return-object v0
 +
 +    :unica_keybox_grant
-     invoke-virtual {p0}, Landroid/system/keystore2/IKeystoreService$Stub$Proxy;->asBinder()Landroid/os/IBinder;
- 
-     move-result-object v0
-@@ -703,6 +743,15 @@
-     .annotation runtime Ljava/lang/Deprecated;
-     .end annotation
- 
-+    invoke-static {p1}, Lio/mesalabs/unica/KeyboxImitationHooks;->onListEntries(I)[Landroid/system/keystore2/KeyDescriptor;
-+
-+    move-result-object v0
-+
-+    if-eqz v0, :unica_keybox_list_entries
-+
-+    return-object v0
-+
-+    :unica_keybox_list_entries
      invoke-virtual {p0}, Landroid/system/keystore2/IKeystoreService$Stub$Proxy;->asBinder()Landroid/os/IBinder;
  
      move-result-object v0
