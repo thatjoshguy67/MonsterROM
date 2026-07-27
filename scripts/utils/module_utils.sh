@@ -119,6 +119,7 @@ APPLY_PATCH()
     fi
 
     [ -n "$RESOLVED_PATCH" ] && rm -f "$RESOLVED_PATCH"
+    return 0
 }
 
 # DECODE_APK <partition> <apk/jar>
