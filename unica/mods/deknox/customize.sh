@@ -1,21 +1,3 @@
-# shellcheck disable=SC2181
-
-_FIND_DEKNOX_SMALI()
-{
-    local DECODED_DIR="$1"
-    local SMALI_SUFFIX="$2"
-    local MATCHES
-
-    MATCHES="$(find "$DECODED_DIR" -type f -path "*/$SMALI_SUFFIX")"
-    if [ -n "$MATCHES" ] && [ "$(printf "%s\n" "$MATCHES" | wc -l)" -eq 1 ]; then
-        printf "%s\n" "$MATCHES"
-        return 0
-    fi
-
-    LOGE "Failed to resolve $SMALI_SUFFIX in ${DECODED_DIR#"$APKTOOL_DIR"/}"
-    return 1
-}
-
 # Fix SDHMS crash loop: siop_default.xml references OverheatComplexType.DEX which doesn't exist in the enum
 DECODE_APK "system" "system/priv-app/SamsungDeviceHealthManagerService/SamsungDeviceHealthManagerService.apk" || return 1
 _SDHMS_XML="$APKTOOL_DIR/system/priv-app/SamsungDeviceHealthManagerService/SamsungDeviceHealthManagerService.apk/assets/siop_default.xml"
@@ -27,209 +9,34 @@ else
 fi
 unset _SDHMS_XML
 
-# Nuke Knox HDM version (HdmManager method body differs in t2s vs S26U)
-DECODE_APK "system" "system/priv-app/SecSettings/SecSettings.apk" || return 1
-_HDM_SMALI="$(_FIND_DEKNOX_SMALI \
-    "$APKTOOL_DIR/system/priv-app/SecSettings/SecSettings.apk" \
-    "com/samsung/android/knox/hdm/HdmManager.smali")" || return 1
-LOG "- Nuking getHdmVersion() in /system/system/priv-app/SecSettings/SecSettings.apk/HdmManager.smali"
-python3 - "$_HDM_SMALI" << 'PYEOF'
-import sys, re
-path = sys.argv[1]
-with open(path) as f:
-    content = f.read()
-old = re.search(
-    r'(\.method public static getHdmVersion\(\)Ljava/lang/String;\n    \.locals \d+\n\n'
-    r'    sget-object v0, Lcom/samsung/android/knox/hdm/HdmManager;->TAG:Ljava/lang/String;\n\n'
-    r'    const-string v1, "getHdmVersion\(\) on HdmManager\.java"\n\n'
-    r'    invoke-static \{v0, v1\}, Landroid/util/Log;->d\(Ljava/lang/String;Ljava/lang/String;\)I\n)'
-    r'.*?(\n    return-object v0\n\.end method)',
-    content, re.DOTALL
-)
-if not old:
-    print('WARNING: getHdmVersion pattern not found', file=sys.stderr)
-    sys.exit(1)
-new_body = (old.group(1) +
-    '\n    const/4 v0, 0x0' +
-    old.group(2))
-content = content[:old.start()] + new_body + content[old.end():]
-content = re.sub(
-    r'(\.method public static getHdmVersion\(\)Ljava/lang/String;\n    )\.locals \d+',
-    r'\1.locals 2',
-    content, count=1
-)
-with open(path, 'w') as f:
-    f.write(content)
-PYEOF
-[ $? -ne 0 ] && { LOG "\033[0;31m! ERROR: HdmManager getHdmVersion() fix failed\033[0m"; return 1; }
-unset _HDM_SMALI
+# Hide Knox HDM and DualDAR versions. Method-level patches tolerate body changes
+# between donor releases, and SMALI_PATCH resolves classes that moved dex buckets.
+SMALI_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
+    "smali_classes3/com/samsung/android/knox/hdm/HdmManager.smali" \
+    "return" "getHdmVersion()Ljava/lang/String;" "null"
 
-# Nuke Knox DualDAR and HDM version in SecSettingsIntelligence
-DECODE_APK "system" "system/priv-app/SecSettingsIntelligence/SecSettingsIntelligence.apk" || return 1
-_SSI_DIR="$APKTOOL_DIR/system/priv-app/SecSettingsIntelligence/SecSettingsIntelligence.apk"
-_SSI_DDAR_SMALI="$(_FIND_DEKNOX_SMALI \
-    "$_SSI_DIR" "com/samsung/android/knox/ddar/DualDARPolicy.smali")" || return 1
-_SSI_HDM_SMALI="$(_FIND_DEKNOX_SMALI \
-    "$_SSI_DIR" "com/samsung/android/knox/hdm/HdmManager.smali")" || return 1
-LOG "- Nuking getDualDARVersion() in /system/system/priv-app/SecSettingsIntelligence/SecSettingsIntelligence.apk"
-python3 - "$_SSI_DDAR_SMALI" << 'PYEOF'
-import sys
-path = sys.argv[1]
-with open(path) as f:
-    content = f.read()
-old = '    const-string v0, "1.9.0"\n\n    return-object v0\n.end method'
-new = '    const/4 v0, 0x0\n\n    return-object v0\n.end method'
-if old not in content:
-    print('WARNING: DualDARPolicy getDualDARVersion pattern not found', file=sys.stderr)
-    sys.exit(1)
-with open(path, 'w') as f:
-    f.write(content.replace(old, new, 1))
-PYEOF
-[ $? -ne 0 ] && { LOG "\033[0;31m! ERROR: SecSettingsIntelligence DualDARPolicy fix failed\033[0m"; return 1; }
+SMALI_PATCH "system" \
+    "system/priv-app/SecSettingsIntelligence/SecSettingsIntelligence.apk" \
+    "smali_classes3/com/samsung/android/knox/ddar/DualDARPolicy.smali" \
+    "return" "getDualDARVersion()Ljava/lang/String;" "null"
+SMALI_PATCH "system" \
+    "system/priv-app/SecSettingsIntelligence/SecSettingsIntelligence.apk" \
+    "smali_classes3/com/samsung/android/knox/hdm/HdmManager.smali" \
+    "return" "getHdmVersion()Ljava/lang/String;" "null"
 
-LOG "- Nuking getHdmVersion() in /system/system/priv-app/SecSettingsIntelligence/SecSettingsIntelligence.apk"
-python3 - "$_SSI_HDM_SMALI" << 'PYEOF'
-import sys, re
-path = sys.argv[1]
-with open(path) as f:
-    content = f.read()
-old = re.search(
-    r'(\.method public static getHdmVersion\(\)Ljava/lang/String;\n    \.locals \d+\n\n'
-    r'    sget-object v0, Lcom/samsung/android/knox/hdm/HdmManager;->TAG:Ljava/lang/String;\n\n'
-    r'    const-string v1, "getHdmVersion\(\) on HdmManager\.java"\n\n'
-    r'    invoke-static \{v0, v1\}, Landroid/util/Log;->d\(Ljava/lang/String;Ljava/lang/String;\)I\n)'
-    r'.*?(\n    return-object v0\n\.end method)',
-    content, re.DOTALL
-)
-if not old:
-    print('WARNING: getHdmVersion pattern not found', file=sys.stderr)
-    sys.exit(1)
-new_body = (old.group(1) +
-    '\n    const/4 v0, 0x0' +
-    old.group(2))
-content = content[:old.start()] + new_body + content[old.end():]
-content = re.sub(
-    r'(\.method public static getHdmVersion\(\)Ljava/lang/String;\n    )\.locals \d+',
-    r'\1.locals 2',
-    content, count=1
-)
-with open(path, 'w') as f:
-    f.write(content)
-PYEOF
-[ $? -ne 0 ] && { LOG "\033[0;31m! ERROR: SecSettingsIntelligence HdmManager fix failed\033[0m"; return 1; }
-unset _SSI_DDAR_SMALI _SSI_DIR _SSI_HDM_SMALI
+SMALI_PATCH "system" "system/framework/knoxsdk.jar" \
+    "smali_classes3/com/samsung/android/knox/ddar/DualDARPolicy.smali" \
+    "return" "getDualDARVersion()Ljava/lang/String;" "null"
+SMALI_PATCH "system" "system/framework/knoxsdk.jar" \
+    "smali_classes3/com/samsung/android/knox/hdm/HdmManager.smali" \
+    "return" "getHdmVersion()Ljava/lang/String;" "null"
 
-# Nuke Knox DualDAR and HDM version in knoxsdk.jar
-DECODE_APK "system" "system/framework/knoxsdk.jar" || return 1
-_KNOX_DIR="$APKTOOL_DIR/system/framework/knoxsdk.jar"
-_KNOX_DDAR_SMALI="$(_FIND_DEKNOX_SMALI \
-    "$_KNOX_DIR" "com/samsung/android/knox/ddar/DualDARPolicy.smali")" || return 1
-_KNOX_HDM_SMALI="$(_FIND_DEKNOX_SMALI \
-    "$_KNOX_DIR" "com/samsung/android/knox/hdm/HdmManager.smali")" || return 1
-LOG "- Nuking getDualDARVersion() in /system/system/framework/knoxsdk.jar"
-python3 - "$_KNOX_DDAR_SMALI" << 'PYEOF'
-import sys
-path = sys.argv[1]
-with open(path) as f:
-    content = f.read()
-old = '    const-string v0, "1.9.0"\n\n    return-object v0\n.end method'
-new = '    const/4 v0, 0x0\n\n    return-object v0\n.end method'
-if old not in content:
-    print('WARNING: knoxsdk DualDARPolicy getDualDARVersion pattern not found', file=sys.stderr)
-    sys.exit(1)
-with open(path, 'w') as f:
-    f.write(content.replace(old, new, 1))
-PYEOF
-[ $? -ne 0 ] && { LOG "\033[0;31m! ERROR: knoxsdk DualDARPolicy fix failed\033[0m"; return 1; }
-
-LOG "- Nuking getHdmVersion() in /system/system/framework/knoxsdk.jar"
-python3 - "$_KNOX_HDM_SMALI" << 'PYEOF'
-import sys, re
-path = sys.argv[1]
-with open(path) as f:
-    content = f.read()
-old = re.search(
-    r'(\.method public static greylist getHdmVersion\(\)Ljava/lang/String;\n    \.locals \d+\n\n'
-    r'    sget-object v0, Lcom/samsung/android/knox/hdm/HdmManager;->TAG:Ljava/lang/String;\n\n'
-    r'    const-string v1, "getHdmVersion\(\) on HdmManager\.java"\n\n'
-    r'    invoke-static \{v0, v1\}, Landroid/util/Log;->d\(Ljava/lang/String;Ljava/lang/String;\)I\n)'
-    r'.*?(\n    return-object v0\n\.end method)',
-    content, re.DOTALL
-)
-if not old:
-    print('WARNING: knoxsdk getHdmVersion pattern not found', file=sys.stderr)
-    sys.exit(1)
-new_body = (old.group(1) +
-    '\n    const/4 v0, 0x0' +
-    old.group(2))
-content = content[:old.start()] + new_body + content[old.end():]
-content = re.sub(
-    r'(\.method public static greylist getHdmVersion\(\)Ljava/lang/String;\n    )\.locals \d+',
-    r'\1.locals 2',
-    content, count=1
-)
-with open(path, 'w') as f:
-    f.write(content)
-PYEOF
-[ $? -ne 0 ] && { LOG "\033[0;31m! ERROR: knoxsdk HdmManager fix failed\033[0m"; return 1; }
-unset _KNOX_DDAR_SMALI _KNOX_DIR _KNOX_HDM_SMALI
-
-# Nuke Knox DualDAR and HDM version in StorageManager
-DECODE_APK "system_ext" "priv-app/StorageManager/StorageManager.apk" || return 1
-_SM_DIR="$APKTOOL_DIR/system_ext/priv-app/StorageManager/StorageManager.apk"
-_SM_DDAR_SMALI="$(_FIND_DEKNOX_SMALI \
-    "$_SM_DIR" "com/samsung/android/knox/ddar/DualDARPolicy.smali")" || return 1
-_SM_HDM_SMALI="$(_FIND_DEKNOX_SMALI \
-    "$_SM_DIR" "com/samsung/android/knox/hdm/HdmManager.smali")" || return 1
-LOG "- Nuking getDualDARVersion() in /system_ext/priv-app/StorageManager/StorageManager.apk"
-python3 - "$_SM_DDAR_SMALI" << 'PYEOF'
-import sys
-path = sys.argv[1]
-with open(path) as f:
-    content = f.read()
-old = '    const-string v0, "1.9.0"\n\n    return-object v0\n.end method'
-new = '    const/4 v0, 0x0\n\n    return-object v0\n.end method'
-if old not in content:
-    print('WARNING: StorageManager DualDARPolicy getDualDARVersion pattern not found', file=sys.stderr)
-    sys.exit(1)
-with open(path, 'w') as f:
-    f.write(content.replace(old, new, 1))
-PYEOF
-[ $? -ne 0 ] && { LOG "\033[0;31m! ERROR: StorageManager DualDARPolicy fix failed\033[0m"; return 1; }
-
-LOG "- Nuking getHdmVersion() in /system_ext/priv-app/StorageManager/StorageManager.apk"
-python3 - "$_SM_HDM_SMALI" << 'PYEOF'
-import sys, re
-path = sys.argv[1]
-with open(path) as f:
-    content = f.read()
-old = re.search(
-    r'(\.method public static getHdmVersion\(\)Ljava/lang/String;\n    \.locals \d+\n\n'
-    r'    sget-object v0, Lcom/samsung/android/knox/hdm/HdmManager;->TAG:Ljava/lang/String;\n\n'
-    r'    const-string v1, "getHdmVersion\(\) on HdmManager\.java"\n\n'
-    r'    invoke-static \{v0, v1\}, Landroid/util/Log;->d\(Ljava/lang/String;Ljava/lang/String;\)I\n)'
-    r'.*?(\n    return-object v0\n\.end method)',
-    content, re.DOTALL
-)
-if not old:
-    print('WARNING: StorageManager getHdmVersion pattern not found', file=sys.stderr)
-    sys.exit(1)
-new_body = (old.group(1) +
-    '\n    const/4 v0, 0x0' +
-    old.group(2))
-content = content[:old.start()] + new_body + content[old.end():]
-content = re.sub(
-    r'(\.method public static getHdmVersion\(\)Ljava/lang/String;\n    )\.locals \d+',
-    r'\1.locals 2',
-    content, count=1
-)
-with open(path, 'w') as f:
-    f.write(content)
-PYEOF
-[ $? -ne 0 ] && { LOG "\033[0;31m! ERROR: StorageManager HdmManager fix failed\033[0m"; return 1; }
-unset _SM_DDAR_SMALI _SM_DIR _SM_HDM_SMALI
-
-unset -f _FIND_DEKNOX_SMALI
+SMALI_PATCH "system_ext" "priv-app/StorageManager/StorageManager.apk" \
+    "smali_classes3/com/samsung/android/knox/ddar/DualDARPolicy.smali" \
+    "return" "getDualDARVersion()Ljava/lang/String;" "null"
+SMALI_PATCH "system_ext" "priv-app/StorageManager/StorageManager.apk" \
+    "smali_classes3/com/samsung/android/knox/hdm/HdmManager.smali" \
+    "return" "getHdmVersion()Ljava/lang/String;" "null"
 
 # KnoxGuard
 DELETE_FROM_WORK_DIR "system" "system/priv-app/KnoxGuard"
