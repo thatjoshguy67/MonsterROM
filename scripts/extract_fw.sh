@@ -349,6 +349,12 @@ PREPARE_SCRIPT "$@"
 for i in "${FIRMWARES[@]}"; do
     PARSE_FIRMWARE_STRING "$i" || exit 1
 
+    EXPECTED_FIRMWARE=""
+    if [[ "$i" == "$TARGET_FIRMWARE" ]] && \
+            [[ "${TARGET_FIRMWARE_VERSION:-none}" != "none" ]]; then
+        EXPECTED_FIRMWARE="$TARGET_FIRMWARE_VERSION"
+    fi
+
     LATEST_FIRMWARE="$(GET_LATEST_FIRMWARE "$MODEL" "$CSC")"
     if [ ! "$LATEST_FIRMWARE" ]; then
         LOGE "Latest available firmware could not be fetched, doing manually"
@@ -360,6 +366,23 @@ for i in "${FIRMWARES[@]}"; do
     LOG "- Latest available firmware: $LATEST_FIRMWARE"
 
     LOG_STEP_IN
+
+    if [ "$EXPECTED_FIRMWARE" ]; then
+        if [ -f "$FW_DIR/${MODEL}_${CSC}/.extracted" ] && \
+                [[ "$(cat "$FW_DIR/${MODEL}_${CSC}/.extracted")" != "$EXPECTED_FIRMWARE" ]]; then
+            LOGE "Cached target firmware does not match the pinned version"
+            LOG "  - Expected: $EXPECTED_FIRMWARE"
+            LOG "  - Extracted: $(cat "$FW_DIR/${MODEL}_${CSC}/.extracted")"
+            exit 1
+        fi
+        if [ -f "$ODIN_DIR/${MODEL}_${CSC}/.downloaded" ] && \
+                [[ "$(cat "$ODIN_DIR/${MODEL}_${CSC}/.downloaded")" != "$EXPECTED_FIRMWARE" ]]; then
+            LOGE "Downloaded target firmware does not match the pinned version"
+            LOG "  - Expected: $EXPECTED_FIRMWARE"
+            LOG "  - Downloaded: $(cat "$ODIN_DIR/${MODEL}_${CSC}/.downloaded")"
+            exit 1
+        fi
+    fi
 
     if ! $FORCE; then
         # Skip if firmware has been extracted
