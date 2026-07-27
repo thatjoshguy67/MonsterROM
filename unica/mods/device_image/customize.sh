@@ -1,3 +1,4 @@
+# shellcheck disable=SC2016
 DECODE_APK "system" "system/priv-app/SecSettings/SecSettings.apk" || return 1
 
 _DEVICE_IMAGE_DIR="$APKTOOL_DIR/system/priv-app/SecSettings/SecSettings.apk"
