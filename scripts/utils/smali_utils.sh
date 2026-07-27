@@ -252,7 +252,11 @@ SMALI_PATCH()
             LOGE "Cannot change return value of void method \"$METHOD\" in /$PARTITION/$FILE/$SMALI"
             return 1
         elif [[ "$RET" == "Ljava/lang/String;" ]]; then
-            VALUE="\"$VALUE\""
+            if [[ "$VALUE" == "null" ]]; then
+                VALUE="0x0"
+            else
+                VALUE="\"$VALUE\""
+            fi
             RET="return-object $REG"
         elif [[ "$RET" =~ ^\[*[ZBCSIJFD]$ ]]; then
             # Boolean type
