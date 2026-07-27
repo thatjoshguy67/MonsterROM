@@ -46,11 +46,12 @@ jobs:
 
       - name: Generate CI matrix
         id: generate-matrix
-        # This fork only builds the Galaxy S21 FE 5G (Snapdragon) targets;
-        # drop the filter below to build every target/ device again.
+        # This fork only builds the Galaxy S21 FE 5G 2023 (SM-G990B2, r9q2).
+        # Add r9q back to the filter to also build the SM-G990B, or drop the
+        # filter entirely to build every target/ device again.
         run: |
           matrix="$(find target -mindepth 1 -maxdepth 1 -type d -printf '%f\n' \
-            | grep -x -E 'r9q|r9q2' \
+            | grep -x -E 'r9q2' \
             | sort | jq -R -s -c 'split("\n") | map(select(length > 0))')"
           echo "$matrix"
           echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
