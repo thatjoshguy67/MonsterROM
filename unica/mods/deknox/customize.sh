@@ -14,6 +14,9 @@ unset _SDHMS_XML
 SMALI_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
     "smali_classes3/com/samsung/android/knox/hdm/HdmManager.smali" \
     "return" "getHdmVersion()Ljava/lang/String;" "null"
+SMALI_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
+    "smali_classes3/com/samsung/android/knox/ddar/DualDARPolicy.smali" \
+    "return" "getDualDARVersion()Ljava/lang/String;" "null"
 
 SMALI_PATCH "system" \
     "system/priv-app/SecSettingsIntelligence/SecSettingsIntelligence.apk" \
