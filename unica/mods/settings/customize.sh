@@ -116,16 +116,45 @@ SMALI_PATCH "system" "system/framework/services.jar" \
     'verifyReplacingVersionCode(Landroid/content/pm/PackageInfoLite;JI)Landroid/util/Pair;' \
     'invoke-virtual {v2}, Ljava/lang/Object;->getClass()Ljava/lang/Class;' \
     'invoke-virtual {v2}, Ljava/lang/Object;->getClass()Ljava/lang/Class;\n\n    iget-object v12, v2, Lcom/android/server/pm/InstallPackageHelper;->mContext:Landroid/content/Context;\n\n    invoke-virtual {v12}, Landroid/content/Context;->getContentResolver()Landroid/content/ContentResolver;\n\n    move-result-object v12\n\n    const-string v13, "unica_allow_downgrade"\n\n    const/4 v14, 0x0\n\n    invoke-static {v12, v13, v14}, Landroid/provider/Settings$System;->getInt(Landroid/content/ContentResolver;Ljava/lang/String;I)I\n\n    move-result v12\n\n    if-eqz v12, :unica_allow_downgrade\n\n    const v12, 0x100080\n\n    or-int/2addr v3, v12\n\n    :unica_allow_downgrade'
-SMALI_PATCH "system" "system/framework/services.jar" \
-    "smali_classes2/com/android/server/pm/InstallPackageHelper.smali" "replace" \
-    'preparePackage(Lcom/android/server/pm/InstallRequest;)V' \
-    '.locals 43' \
-    '.locals 45'
-SMALI_PATCH "system" "system/framework/services.jar" \
-    "smali_classes2/com/android/server/pm/InstallPackageHelper.smali" "replace" \
-    'preparePackage(Lcom/android/server/pm/InstallRequest;)V' \
-    'if-nez v0, :cond_19' \
-    'if-nez v0, :cond_19\n\n    const-string v43, "persist.sys.unica.sdkbypass"\n\n    const/16 v44, 0x0\n\n    invoke-static/range {v43 .. v44}, Landroid/os/SystemProperties;->getBoolean(Ljava/lang/String;Z)Z\n\n    move-result v43\n\n    if-nez v43, :cond_19'
+# preparePackage: honour persist.sys.unica.sdkbypass to skip the install-time
+# SDK check. The method's .locals count - and therefore the two scratch
+# registers this adds (always v<locals> and v<locals+1>) - plus the branch it
+# hooks are regenerated on every firmware recompile, so the upstream literal
+# ".locals 43"/v43/v44/:cond_19 no longer matched. Resolve them from the
+# decoded smali at build time. The property defaults to false, so if the
+# expected structure is gone the hook is skipped without failing the build and
+# without changing default behaviour.
+_IPH_JAR="system/framework/services.jar"
+_IPH_SMALI="smali_classes2/com/android/server/pm/InstallPackageHelper.smali"
+_IPH_PATH="$APKTOOL_DIR/$_IPH_JAR/$_IPH_SMALI"
+if [ ! -f "$_IPH_PATH" ]; then
+    _IPH_PATH="$(find "$APKTOOL_DIR/$_IPH_JAR" -type f \
+        -path '*/com/android/server/pm/InstallPackageHelper.smali' | head -n1)"
+    _IPH_SMALI="${_IPH_PATH#"$APKTOOL_DIR/$_IPH_JAR/"}"
+fi
+_IPH_METHOD='preparePackage(Lcom/android/server/pm/InstallRequest;)V'
+_IPH_LOCALS=""
+_IPH_BRANCH=""
+if [ -f "$_IPH_PATH" ]; then
+    _IPH_BODY="$(sed -n '/^\.method.*preparePackage(Lcom\/android\/server\/pm\/InstallRequest;)V/,/^\.end method/p' "$_IPH_PATH")"
+    _IPH_LOCALS="$(grep -m1 -oP '^\s*\.locals \K[0-9]+' <<< "$_IPH_BODY")"
+    _IPH_BRANCH="$(grep -m1 -oE 'if-nez v0, :cond_[0-9a-f]+' <<< "$_IPH_BODY")"
+fi
+if [ -n "$_IPH_LOCALS" ] && [ -n "$_IPH_BRANCH" ]; then
+    _IPH_R0="v$_IPH_LOCALS"
+    _IPH_R1="v$((_IPH_LOCALS + 1))"
+    SMALI_PATCH "system" "$_IPH_JAR" "$_IPH_SMALI" "replace" \
+        "$_IPH_METHOD" \
+        ".locals $_IPH_LOCALS" \
+        ".locals $((_IPH_LOCALS + 2))"
+    SMALI_PATCH "system" "$_IPH_JAR" "$_IPH_SMALI" "replace" \
+        "$_IPH_METHOD" \
+        "$_IPH_BRANCH" \
+        "$_IPH_BRANCH\n\n    const-string $_IPH_R0, \"persist.sys.unica.sdkbypass\"\n\n    const/16 $_IPH_R1, 0x0\n\n    invoke-static/range {$_IPH_R0 .. $_IPH_R1}, Landroid/os/SystemProperties;->getBoolean(Ljava/lang/String;Z)Z\n\n    move-result $_IPH_R0\n\n    if-nez $_IPH_R0, ${_IPH_BRANCH##* }"
+else
+    LOGW "InstallPackageHelper.preparePackage: expected .locals/branch not found; skipping SDK-bypass hook"
+fi
+unset _IPH_JAR _IPH_SMALI _IPH_PATH _IPH_METHOD _IPH_BODY _IPH_LOCALS _IPH_BRANCH _IPH_R0 _IPH_R1
 
 ASKS_SMALI="$APKTOOL_DIR/system/framework/services.jar/smali/com/android/server/asks/ASKSManagerService.smali"
 ASKS_POLICY_METHOD='getUnknownAppsDataFromXML(ILjava/util/ArrayList;Ljava/util/HashMap;Z)V'
