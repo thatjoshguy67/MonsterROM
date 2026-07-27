@@ -313,8 +313,21 @@ if $SOURCE_COMMON_SUPPORT_HDR_EFFECT; then
     if ! $TARGET_COMMON_SUPPORT_HDR_EFFECT; then
         SET_FLOATING_FEATURE_CONFIG "SEC_FLOATING_FEATURE_COMMON_SUPPORT_HDR_EFFECT" --delete
 
-        APPLY_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
-            "$MODPATH/mdnie/hdr/SecSettings.apk/0001-Disable-HDR-Settings.patch"
+        SMALI_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
+            "smali_classes3/com/samsung/android/settings/usefulfeature/UsefulfeatureUtils.smali" "return" \
+            "getVideoEnhanceAppInfo(Landroid/content/Context;)Ljava/lang/String;" \
+            "null"
+        SMALI_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
+            "smali_classes3/com/samsung/android/settings/usefulfeature/UsefulfeatureUtils.smali" "null" \
+            "setVideoEnhanceAppInfo(Landroid/content/Context;Ljava/lang/String;)V"
+        SMALI_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
+            "smali_classes3/com/samsung/android/settings/usefulfeature/videoenhancer/SecBrightenUpVideoPreferenceController.smali" "return" \
+            "getAvailabilityStatus()I" \
+            "3"
+        SMALI_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
+            "smali_classes3/com/samsung/android/settings/usefulfeature/videoenhancer/VideoEnhancerPreferenceController.smali" "return" \
+            "getAvailabilityStatus()I" \
+            "3"
         APPLY_PATCH "system" "system/priv-app/SettingsProvider/SettingsProvider.apk" \
             "$MODPATH/mdnie/hdr/SettingsProvider.apk/0001-Disable-HDR-Settings.patch"
     else
