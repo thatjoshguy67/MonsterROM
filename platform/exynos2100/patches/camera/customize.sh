@@ -1,3 +1,4 @@
+# shellcheck disable=SC2046
 
 
 # Add ImageTagger lib

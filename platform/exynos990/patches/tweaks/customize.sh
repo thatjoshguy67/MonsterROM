@@ -1,3 +1,4 @@
+# shellcheck disable=SC2162
 LOG_STEP_IN "- Setting casefold props"
 SET_PROP "vendor" "external_storage.projid.enabled" "1"
 SET_PROP "vendor" "external_storage.casefold.enabled" "1"

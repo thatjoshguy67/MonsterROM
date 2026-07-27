@@ -1,3 +1,4 @@
+# shellcheck disable=SC2181
 DECODE_APK "system" "system/priv-app/SecSetupWizard_Global/SecSetupWizard_Global.apk"
 
 _SETUPWIZARD_APK_DIR="$APKTOOL_DIR/system/priv-app/SecSetupWizard_Global/SecSetupWizard_Global.apk"

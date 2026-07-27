@@ -1,3 +1,4 @@
+# shellcheck disable=SC2034
 SKIPUNZIP=1
 
 if [ ! -d "$SRC_DIR/prebuilts/samsung/${TARGET_CODENAME}cxx" ]; then

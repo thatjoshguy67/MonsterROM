@@ -1,4 +1,5 @@
 #!/system/bin/sh
+# shellcheck disable=SC2015
 
 TRY=0
 

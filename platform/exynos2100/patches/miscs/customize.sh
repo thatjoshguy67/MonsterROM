@@ -1,3 +1,4 @@
+# shellcheck disable=SC2015,SC2016,SC2043,SC2155
 LOG_STEP_IN "- Setting FUSE passthrough"
 SET_PROP "vendor" "persist.sys.fuse.passthrough.enable" "true"
 LOG_STEP_OUT

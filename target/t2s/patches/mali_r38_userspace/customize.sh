@@ -1,3 +1,4 @@
+# shellcheck disable=SC2016,SC2034
 SKIPUNZIP=1
 
 MALI_R38_KERNEL_MANIFEST="$SRC_DIR/out/kernel-builds/latest-mali-ddk.txt"

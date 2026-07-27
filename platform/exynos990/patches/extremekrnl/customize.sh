@@ -1,3 +1,4 @@
+# shellcheck disable=SC2155
 # [
 EXTREMEKRNL_REPO="https://github.com/Android-Artisan/android_kernel_samsung_exynos990"
 EXTREME_BPF_SPOOF_MODE="${EXTREME_BPF_SPOOF_MODE:-2}"

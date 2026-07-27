@@ -1,3 +1,4 @@
+# shellcheck disable=SC2001,SC2086,SC2103,SC2164
 LOG_STEP_IN "- Processing optional custom common kernel by @Edgars-cirulis"
 
 PDR="$(pwd)"

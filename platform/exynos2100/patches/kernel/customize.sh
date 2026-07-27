@@ -1,3 +1,4 @@
+# shellcheck disable=SC2016
 # FloppyKernel source and packaging configuration. All values can be
 # overridden from the environment without changing this module.
 FLOPPY_KERNEL_REPO="${FLOPPY_KERNEL_REPO:-https://github.com/FlopKernel-Series/flop_exynos2100_kernel}"

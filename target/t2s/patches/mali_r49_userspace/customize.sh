@@ -1,3 +1,4 @@
+# shellcheck disable=SC2016,SC2034
 SKIPUNZIP=1
 
 if [ "${T2S_ENABLE_EXPERIMENTAL_MALI_R49:-0}" != "1" ]; then

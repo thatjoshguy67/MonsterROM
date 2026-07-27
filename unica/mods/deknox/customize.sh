@@ -1,3 +1,4 @@
+# shellcheck disable=SC2181
 # Fix SDHMS crash loop: siop_default.xml references OverheatComplexType.DEX which doesn't exist in the enum
 DECODE_APK "system" "system/priv-app/SamsungDeviceHealthManagerService/SamsungDeviceHealthManagerService.apk" || return 1
 _SDHMS_XML="$APKTOOL_DIR/system/priv-app/SamsungDeviceHealthManagerService/SamsungDeviceHealthManagerService.apk/assets/siop_default.xml"
