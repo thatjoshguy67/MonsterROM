@@ -72,23 +72,33 @@ SMALI_PATCH()
 
     local FILE_PATH="$APKTOOL_DIR/$PARTITION/${FILE//system\//}"
 
-    # Check if provided smali exists
+    # Resolve classes that moved between dex buckets.
     if [ ! -f "$FILE_PATH/$SMALI" ]; then
-        LOGE "Smali not found: \"/$PARTITION/$FILE/$SMALI\""
-
+        local SMALI_SUFFIX="${SMALI#*/}"
         local MATCHES
-        MATCHES="$(find "$FILE_PATH" -type f -name "*${SMALI##*/}")"
+        MATCHES="$(find "$FILE_PATH" -type f -path "*/$SMALI_SUFFIX")"
 
-        if [ "$MATCHES" ]; then
-            echo -e "\n\033[0;31mPossible matches?" >&2
-            echo -e -n "$(head -n 10 <<< "${MATCHES//$FILE_PATH\//    }")" >&2
-            [ "$(wc -l <<< "$MATCHES")" -gt 10 ] && \
-                echo -e -n "\n    ...and other $(($(wc -l <<< "$MATCHES") - 10)) matches"  >&2
-            echo -e "\033[0m" >&2
+        if [ -n "$MATCHES" ] && [ "$(printf "%s\n" "$MATCHES" | wc -l)" -eq 1 ]; then
+            local RESOLVED_SMALI="${MATCHES#$FILE_PATH/}"
+            LOG "- Resolved \"$SMALI\" to \"$RESOLVED_SMALI\" in /$PARTITION/$FILE"
+            SMALI="$RESOLVED_SMALI"
+        else
+            LOGE "Smali not found: \"/$PARTITION/$FILE/$SMALI\""
+
+            MATCHES="$(find "$FILE_PATH" -type f -name "*${SMALI##*/}")"
+            if [ "$MATCHES" ]; then
+                echo -e "\n\033[0;31mPossible matches?" >&2
+                echo -e -n "$(head -n 10 <<< "${MATCHES//$FILE_PATH\//    }")" >&2
+                [ "$(wc -l <<< "$MATCHES")" -gt 10 ] && \
+                    echo -e -n "\n    ...and other $(($(wc -l <<< "$MATCHES") - 10)) matches"  >&2
+                echo -e "\033[0m" >&2
+            fi
+
+            return 1
         fi
+    fi
 
-        return 1
-    elif [[ "$OPERATION" == "remove" ]]; then
+    if [[ "$OPERATION" == "remove" ]]; then
         local USED
         USED="$(find "$FILE_PATH" ! -path "*$SMALI" -type f -exec grep -r -n -- "$(cut -d "." -f "1" <<< "${SMALI#*/}");" {} \+ || true)"
         USED="$(cut -d ":" -f 1-2 <<< "$USED")"
