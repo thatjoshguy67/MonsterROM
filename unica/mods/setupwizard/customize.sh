@@ -4,8 +4,17 @@ DECODE_APK "system" "system/priv-app/SecSetupWizard_Global/SecSetupWizard_Global
 _SETUPWIZARD_APK_DIR="$APKTOOL_DIR/system/priv-app/SecSetupWizard_Global/SecSetupWizard_Global.apk"
 _SETUPWIZARD_ACTIVITY_SMALI="$_SETUPWIZARD_APK_DIR/smali/com/sec/android/app/SecSetupWizard/SecSetupWizardActivity.smali"
 
-_SETUPWIZARD_LIST_SMALI="$(find "$_SETUPWIZARD_APK_DIR" -type f -name "*.smali" \
-    -exec grep -l "navigationbar_setting" {} +)"
+_SETUPWIZARD_LIST_SMALI="$(grep -rl --include="*.smali" \
+    'const-string.*"disclaimer"' "$_SETUPWIZARD_APK_DIR"/smali* || true)"
+if [ "$(printf "%s\n" "$_SETUPWIZARD_LIST_SMALI" | sed '/^$/d' | wc -l)" -ne 1 ]; then
+    _SETUPWIZARD_LIST_SMALI="$(
+        while IFS= read -r f; do
+            if grep -q "Ljava/util/ArrayList;" "$f" && grep -q "if-lez" "$f"; then
+                printf "%s\n" "$f"
+            fi
+        done <<< "$_SETUPWIZARD_LIST_SMALI"
+    )"
+fi
 if [ -z "$_SETUPWIZARD_LIST_SMALI" ] || \
         [ "$(printf "%s\n" "$_SETUPWIZARD_LIST_SMALI" | wc -l)" -ne 1 ]; then
     LOG "\033[0;31m! ERROR: failed to resolve the Setup Wizard list builder\033[0m"
