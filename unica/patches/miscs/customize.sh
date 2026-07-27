@@ -14,21 +14,29 @@ SMALI_PATCH "system" "system/framework/framework.jar" \
 
 # shellcheck disable=SC2016
 # Disable RescueParty
-SMALI_PATCH "system" "system/framework/services.jar" \
-    "smali/com/android/server/SecRescueParty.smali" "null" \
-    "executeEraseAppData(Landroid/content/Context;Ljava/lang/String;I)V"
-SMALI_PATCH "system" "system/framework/services.jar" \
-    "smali/com/android/server/SecRescueParty.smali" "null" \
-    "executeRescueRecovery(Landroid/content/Context;Ljava/lang/String;I)V"
-SMALI_PATCH "system" "system/framework/services.jar" \
-    "smali/com/android/server/SecRescueParty.smali" "null" \
-    "executeResetOthers(Landroid/content/Context;Ljava/lang/String;I)V"
-SMALI_PATCH "system" "system/framework/services.jar" \
-    "smali/com/android/server/SecRescueParty.smali" "null" \
-    "executeSecRescueLevel(Landroid/content/Context;Ljava/lang/String;I)V"
-SMALI_PATCH "system" "system/framework/services.jar" \
-    "smali/com/android/server/SecRescueParty.smali" "null" \
-    "executeWarmReboot(Landroid/content/Context;Ljava/lang/String;I)V"
+DECODE_APK "system" "system/framework/services.jar" || return 1
+SEC_RESCUE_PARTY_SMALI="$(find "$APKTOOL_DIR/system/framework/services.jar" \
+    -path "*/com/android/server/SecRescueParty.smali" \
+    -printf "%P\n" -quit)"
+if [ "$SEC_RESCUE_PARTY_SMALI" ]; then
+    SMALI_PATCH "system" "system/framework/services.jar" \
+        "$SEC_RESCUE_PARTY_SMALI" "null" \
+        "executeEraseAppData(Landroid/content/Context;Ljava/lang/String;I)V"
+    SMALI_PATCH "system" "system/framework/services.jar" \
+        "$SEC_RESCUE_PARTY_SMALI" "null" \
+        "executeRescueRecovery(Landroid/content/Context;Ljava/lang/String;I)V"
+    SMALI_PATCH "system" "system/framework/services.jar" \
+        "$SEC_RESCUE_PARTY_SMALI" "null" \
+        "executeResetOthers(Landroid/content/Context;Ljava/lang/String;I)V"
+    SMALI_PATCH "system" "system/framework/services.jar" \
+        "$SEC_RESCUE_PARTY_SMALI" "null" \
+        "executeSecRescueLevel(Landroid/content/Context;Ljava/lang/String;I)V"
+    SMALI_PATCH "system" "system/framework/services.jar" \
+        "$SEC_RESCUE_PARTY_SMALI" "null" \
+        "executeWarmReboot(Landroid/content/Context;Ljava/lang/String;I)V"
+else
+    LOG "- Skipping RescueParty disable: SecRescueParty.smali not found in /system/system/framework/services.jar"
+fi
 
 # Better model detection in FreecessController
 SMALI_PATCH "system" "system/framework/services.jar" \
