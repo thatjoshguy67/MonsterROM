@@ -34,31 +34,24 @@ jobs:
 
   generate-matrix:
     name: Generate matrix
-    needs: shellcheck
     runs-on: ubuntu-24.04
 
     outputs:
       matrix: ${{ steps.generate-matrix.outputs.matrix }}
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v7
-
       - name: Generate CI matrix
         id: generate-matrix
-        # This fork only builds the Galaxy S21 FE 5G 2023 (SM-G990B2, r9q2).
-        # Add r9q back to the filter to also build the SM-G990B, or drop the
-        # filter entirely to build every target/ device again.
         run: |
-          matrix="$(find target -mindepth 1 -maxdepth 1 -type d -printf '%f\n' \
-            | grep -x -E 'r9q2' \
-            | sort | jq -R -s -c 'split("\n") | map(select(length > 0))')"
+          # This fork only builds the SM-G990B2 target. Keeping the matrix
+          # explicit avoids a second repository checkout before the build.
+          matrix='["r9q2"]'
           echo "$matrix"
           echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
 
   build:
     name: Build
-    needs: [shellcheck, generate-matrix]
+    needs: generate-matrix
     # Self-hosted so out/odin and out/fw survive between runs: the build
     # system's .downloaded/.extracted markers then skip the ~15GB firmware
     # download and go straight to building.
