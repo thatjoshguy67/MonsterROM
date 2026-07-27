@@ -17,11 +17,29 @@ if [ -z "$DAAGENT_RECEIVER_METHOD" ]; then
     return 1
 fi
 
+DAAGENT_REMOVE_LINE="$(
+    awk -v FN="$DAAGENT_RECEIVER_METHOD" '
+        /^\.method/ && index($0, FN) { inside = 1 }
+        inside && index($0, "SendSaLogService;->schedule(Landroid/content/Context;)V") {
+            after_schedule = 1
+        }
+        inside && after_schedule && index($0, "DAUtility;->updateWhitelistAppsInSystemServer(Landroid/content/Context;)V") {
+            print NR
+            exit
+        }
+        inside && /^\.end method/ { inside = 0 }
+    ' "$DAAGENT_RECEIVER_SMALI"
+)"
+if [[ ! "$DAAGENT_REMOVE_LINE" =~ ^[0-9]+$ ]]; then
+    ABORT "Failed to find the Dual Messenger whitelist update after SendSaLogService"
+    return 1
+fi
+
 LOG "- Moving the Dual Messenger whitelist update in $DAAGENT_RECEIVER_METHOD"
-if ! awk -v FN="$DAAGENT_RECEIVER_METHOD" '
+if ! awk -v FN="$DAAGENT_RECEIVER_METHOD" -v REMOVE_LINE="$DAAGENT_REMOVE_LINE" '
     /^\.method/ && index($0, FN) { inside = 1 }
-    inside && index($0, "DAUtility;->updateWhitelistAppsInSystemServer(Landroid/content/Context;)V") {
-        removed++
+    inside && NR == REMOVE_LINE {
+        removed = 1
         next
     }
     inside && !inserted && index($0, "SendSaLogService;->schedule(Landroid/content/Context;)V") {
@@ -41,4 +59,4 @@ if ! awk -v FN="$DAAGENT_RECEIVER_METHOD" '
 fi
 mv "$DAAGENT_RECEIVER_TMP" "$DAAGENT_RECEIVER_SMALI" || return 1
 
-unset DAAGENT_RECEIVER_METHOD DAAGENT_RECEIVER_SMALI DAAGENT_RECEIVER_TMP
+unset DAAGENT_RECEIVER_METHOD DAAGENT_RECEIVER_SMALI DAAGENT_RECEIVER_TMP DAAGENT_REMOVE_LINE
