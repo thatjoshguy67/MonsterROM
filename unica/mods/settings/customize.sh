@@ -244,18 +244,40 @@ SMALI_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
 
 DECODE_APK "system" "system/priv-app/SecSettingsIntelligence/SecSettingsIntelligence.apk"
 LOG "- Patching \"smali_classes2/com/samsung/android/settings/intelligence/search/categorizing/TopLevelKeysCollector.smali\" in /system/system/priv-app/SecSettingsIntelligence/SecSettingsIntelligence.apk"
-SMALI_PATCH "system" "system/priv-app/SecSettingsIntelligence/SecSettingsIntelligence.apk" \
-    "smali_classes2/com/samsung/android/settings/intelligence/search/categorizing/TopLevelKeysCollector.smali" "replace" \
-    '<init>(Landroid/content/Context;)V' \
-    '.locals 37' \
-    '.locals 38' \
-    > /dev/null
-SMALI_PATCH "system" "system/priv-app/SecSettingsIntelligence/SecSettingsIntelligence.apk" \
-    "smali_classes2/com/samsung/android/settings/intelligence/search/categorizing/TopLevelKeysCollector.smali" "replace" \
-    '<init>(Landroid/content/Context;)V' \
-    'filled-new-array/range {v1 .. v36}, [Ljava/lang/String;' \
-    '    const-string v37, "top_level_unica"\n\n    filled-new-array/range {v1 .. v37}, [Ljava/lang/String;' \
-    > /dev/null
+# Append "top_level_unica" to TopLevelKeysCollector's top-level search-key
+# array. The array's register range and the method's .locals count track the
+# number of stock top-level keys, which changes every firmware, so the literal
+# 37/38/v36/v37 no longer matched. Resolve the current array endpoint and
+# .locals from the decoded smali: the new key goes in the register right after
+# the current last element, with .locals bumped by one to free it. Only apply
+# when the array spans all locals (v1..v<locals-1>) - the shape this transform
+# assumes; otherwise skip without failing the build.
+_TLK_APK="system/priv-app/SecSettingsIntelligence/SecSettingsIntelligence.apk"
+_TLK_SMALI="smali_classes2/com/samsung/android/settings/intelligence/search/categorizing/TopLevelKeysCollector.smali"
+_TLK_METHOD='<init>(Landroid/content/Context;)V'
+_TLK_PATH="$APKTOOL_DIR/system/priv-app/SecSettingsIntelligence/SecSettingsIntelligence.apk/$_TLK_SMALI"
+_TLK_LOCALS=""
+_TLK_LAST=""
+if [ -f "$_TLK_PATH" ]; then
+    _TLK_BODY="$(sed -n '/^\.method.*<init>(Landroid\/content\/Context;)V/,/^\.end method/p' "$_TLK_PATH")"
+    _TLK_LOCALS="$(grep -m1 -oP '^\s*\.locals \K[0-9]+' <<< "$_TLK_BODY")"
+    _TLK_LAST="$(grep -m1 -oP 'filled-new-array/range \{v1 \.\. v\K[0-9]+(?=\}, \[Ljava/lang/String;)' <<< "$_TLK_BODY")"
+fi
+if [ -n "$_TLK_LOCALS" ] && [ -n "$_TLK_LAST" ] && [ "$_TLK_LOCALS" -eq "$((_TLK_LAST + 1))" ]; then
+    SMALI_PATCH "system" "$_TLK_APK" "$_TLK_SMALI" "replace" \
+        "$_TLK_METHOD" \
+        ".locals $_TLK_LOCALS" \
+        ".locals $((_TLK_LOCALS + 1))" \
+        > /dev/null
+    SMALI_PATCH "system" "$_TLK_APK" "$_TLK_SMALI" "replace" \
+        "$_TLK_METHOD" \
+        "filled-new-array/range {v1 .. v$_TLK_LAST}, [Ljava/lang/String;" \
+        "    const-string v$_TLK_LOCALS, \"top_level_unica\"\n\n    filled-new-array/range {v1 .. v$_TLK_LOCALS}, [Ljava/lang/String;" \
+        > /dev/null
+else
+    LOGW "TopLevelKeysCollector: unexpected .locals/array shape; skipping UN1CA top-level search key"
+fi
+unset _TLK_APK _TLK_SMALI _TLK_METHOD _TLK_PATH _TLK_BODY _TLK_LOCALS _TLK_LAST
 
 # Show Vulkan renderer toggle if required
 if [[ "$(GET_PROP "vendor" "ro.hwui.use_vulkan")" != "true" ]]; then
