@@ -38,6 +38,57 @@ SMALI_PATCH "system_ext" "priv-app/StorageManager/StorageManager.apk" \
     "smali_classes3/com/samsung/android/knox/hdm/HdmManager.smali" \
     "return" "getHdmVersion()Ljava/lang/String;" "null"
 
+# Skip KnoxGuard startup using SystemServer's existing end-of-block label.
+DECODE_APK "system" "system/framework/services.jar" || return 1
+_SYSTEM_SERVER_SMALI="$APKTOOL_DIR/system/framework/services.jar/smali/com/android/server/SystemServer.smali"
+LOG "- Disabling KnoxGuardService startup in /system/system/framework/services.jar"
+python3 - "$_SYSTEM_SERVER_SMALI" << 'PYEOF' || return 1
+import re
+import sys
+
+path = sys.argv[1]
+with open(path) as stream:
+    lines = stream.readlines()
+
+markers = [
+    index for index, line in enumerate(lines)
+    if '"StartKnoxGuard"' in line
+]
+if len(markers) != 1:
+    print(f"Expected one StartKnoxGuard marker, found {len(markers)}", file=sys.stderr)
+    sys.exit(1)
+
+marker = markers[0]
+window_start = max(0, marker - 30)
+if not any(
+    "FactoryTest;->isFactoryBinary()Z" in line
+    for line in lines[window_start:marker]
+):
+    print("FactoryTest guard not found before StartKnoxGuard", file=sys.stderr)
+    sys.exit(1)
+
+target = None
+for index in range(marker - 1, window_start - 1, -1):
+    match = re.match(r"\s*if-\w+\s+[^,]+,\s+(:[A-Za-z0-9_]+)\s*$", lines[index])
+    if match:
+        candidate = match.group(1)
+        if any(line.strip() == candidate for line in lines[marker + 1:]):
+            target = candidate
+            break
+
+if target is None:
+    print("KnoxGuard skip label not found", file=sys.stderr)
+    sys.exit(1)
+
+if marker > 0 and lines[marker - 1].strip() == f"goto {target}":
+    sys.exit(0)
+
+lines[marker:marker] = [f"    goto {target}\n", "\n"]
+with open(path, "w") as stream:
+    stream.writelines(lines)
+PYEOF
+unset _SYSTEM_SERVER_SMALI
+
 # KnoxGuard
 DELETE_FROM_WORK_DIR "system" "system/priv-app/KnoxGuard"
 DELETE_FROM_WORK_DIR "system" "system/etc/permissions/privapp-permissions-com.samsung.android.kgclient.xml"
