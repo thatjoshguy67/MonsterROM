@@ -74,20 +74,6 @@ index 5b4a5a6..c40c221 100644
  .method public final checkValidPrevCredentialType()Z
      .locals 2
 
-@@ -5467,6 +5515,13 @@
-
-     invoke-virtual {v0, v1}, Landroid/util/SparseIntArray;->delete(I)V
-
-+    sget-boolean v0, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
-+
-+    if-eqz v0, :cond_unica_optical_auth_done
-+
-+    invoke-virtual {p0}, Lcom/android/keyguard/KeyguardSecUpdateMonitorImpl;->removeMaskViewForOpticalFpSensor()V
-+
-+    :cond_unica_optical_auth_done
-     sget-boolean v0, Lcom/android/systemui/LsRune;->SECURITY_SUB_DISPLAY_COVER:Z
-
-     if-eqz v0, :cond_0
 @@ -12778,6 +12833,37 @@
      return-void
  .end method
@@ -168,16 +154,6 @@ index 5b4a5a6..c40c221 100644
  .field public static final SECURITY_HAPTIC_FEEDBACK_ON_DC_MOTOR:Z
 
  .field public static final SECURITY_LAYERED_BOUNCER_BLUR:Z
-@@ -745,6 +747,8 @@
-
-     sput-boolean v3, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
-
-+    sput-boolean v3, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
-+
-     const-string v0, "SEC_FLOATING_FEATURE_BIOAUTH_CONFIG_FINGERPRINT_FEATURES"
-
-     const-string v7, "capacitive_home_tablet"
-
 diff --git a/smali_classes3/com/android/systemui/shade/SecNotificationShadeWindowControllerHelperImpl.smali b/smali_classes3/com/android/systemui/shade/SecNotificationShadeWindowControllerHelperImpl.smali
 index 5b4a5a6..c40c221 100644
 --- a/smali_classes3/com/android/systemui/shade/SecNotificationShadeWindowControllerHelperImpl.smali
