@@ -9,8 +9,8 @@ Subject: [PATCH] Add optical FOD support
 
 diff --git a/smali_classes5/com/samsung/android/settings/biometrics/fingerprint/FingerprintSettings.smali b/smali_classes5/com/samsung/android/settings/biometrics/fingerprint/FingerprintSettings.smali
 index 2e5b0dc..f4ba6cf 100644
---- a/smali_classes3/com/samsung/android/settings/biometrics/fingerprint/FingerprintSettings.smali
-+++ b/smali_classes3/com/samsung/android/settings/biometrics/fingerprint/FingerprintSettings.smali
+--- a/smali_classes5/com/samsung/android/settings/biometrics/fingerprint/FingerprintSettings.smali
++++ b/smali_classes5/com/samsung/android/settings/biometrics/fingerprint/FingerprintSettings.smali
 @@ -73,6 +73,8 @@
  
  .field public mLockPatternUtils:Lcom/android/internal/widget/LockPatternUtils;
