@@ -49,7 +49,7 @@ fi
 # Samsung Internet Browser
 # https://play.google.com/store/apps/details?id=com.sec.android.app.sbrowser
 LOG "- Downloading Samsung Internet app"
-DOWNLOAD_FILE "$(GET_GALAXY_STORE_DOWNLOAD_URL "com.sec.android.app.sbrowser")" \
+DOWNLOAD_GALAXY_STORE_APP "com.sec.android.app.sbrowser" \
     "$WORK_DIR/system/system/preload/SBrowser/SBrowser.apk"
 
 VPL_LIST="$WORK_DIR/system/system/etc/vpl_apks_count_list.txt"

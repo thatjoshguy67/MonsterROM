@@ -55,7 +55,19 @@ if [ -f "$WORK_DIR/system/system/priv-app/SecSoundPicker/SecSoundPicker.apk" ]; 
 fi
 
 LOG_STEP_IN "- Adding new smartsuggesionts"
-LOG "- Downloading Smart suggestions from fold8"
-DOWNLOAD_FILE "$(GET_GALAXY_STORE_DOWNLOAD_URL "com.samsung.android.smartsuggestions")" \
-    "$WORK_DIR/system/system/priv-app/SamsungSmartSuggestions/SamsungSmartSuggestions.apk"
+# Smart Suggestions (com.samsung.android.smartsuggestions, branded "Personal
+# data intelligence") is not published on the Galaxy Store for the spoofed
+# device, so prefer a locally supplied APK. Override the path with
+# UN1CA_SMARTSUGGESTIONS_APK; otherwise fall back to the store download.
+_SMARTSUGG_APK="${UN1CA_SMARTSUGGESTIONS_APK:-/mnt/c/Users/Josh/Downloads/Personal data intelligence.apk}"
+_SMARTSUGG_DEST="$WORK_DIR/system/system/priv-app/SamsungSmartSuggestions/SamsungSmartSuggestions.apk"
+if [ -f "$_SMARTSUGG_APK" ]; then
+    LOG "- Using local Smart Suggestions APK"
+    mkdir -p "$(dirname "$_SMARTSUGG_DEST")"
+    cp "$_SMARTSUGG_APK" "$_SMARTSUGG_DEST"
+else
+    LOG "- Downloading Smart suggestions from fold8"
+    DOWNLOAD_GALAXY_STORE_APP "com.samsung.android.smartsuggestions" "$_SMARTSUGG_DEST"
+fi
+unset _SMARTSUGG_APK _SMARTSUGG_DEST
 LOG_STEP_OUT

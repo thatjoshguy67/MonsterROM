@@ -206,6 +206,34 @@ GET_GALAXY_STORE_DOWNLOAD_URL()
     return 1
 }
 
+# DOWNLOAD_GALAXY_STORE_APP "<package name/id>" "<dest apk path>"
+# Downloads an app from the Galaxy Store into <dest apk path>. A missing
+# store entry or a failed download is non-fatal: it logs a warning and
+# returns 0. An optional preloaded app must not abort the whole ROM build
+# when Samsung's store has no match for the spoofed device/region/SDK.
+DOWNLOAD_GALAXY_STORE_APP()
+{
+    _CHECK_NON_EMPTY_PARAM "PACKAGE" "$1" || return 1
+    _CHECK_NON_EMPTY_PARAM "DEST" "$2" || return 1
+
+    local PACKAGE="$1"
+    local DEST="$2"
+    local URL
+
+    URL="$(GET_GALAXY_STORE_DOWNLOAD_URL "$PACKAGE")" || URL=""
+    if [ -z "$URL" ]; then
+        LOGW "No Galaxy Store download for \"$PACKAGE\"; skipping"
+        return 0
+    fi
+
+    if ! DOWNLOAD_FILE "$URL" "$DEST"; then
+        LOGW "Download of \"$PACKAGE\" failed; skipping"
+        rm -f "$DEST"
+    fi
+
+    return 0
+}
+
 # GET_FLOATING_FEATURE_CONFIG "<file>" "<config>"
 # Returns the supplied config value, file can be omitted.
 GET_FLOATING_FEATURE_CONFIG()
