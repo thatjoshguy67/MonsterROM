@@ -126,7 +126,8 @@ SMALI_PATCH()
         LOGE "Method \"$METHOD\" not found in /$PARTITION/$FILE/$SMALI"
 
         local MATCHES
-        MATCHES="$(grep -r "^\.method.*$METHOD" "$FILE_PATH")"
+        MATCHES="$(grep -rF -- "$METHOD" "$FILE_PATH" | \
+            grep -E '^[^:]+:[[:space:]]*\.method' || true)"
 
         if [ "$MATCHES" ]; then
             echo -e "\n\033[0;31mPossible matches?" >&2
