@@ -82,6 +82,10 @@ fi
 #     String containing the source/target device firmware to use in the format of "Model number/CSC/IMEI".
 #     IMEI number is necessary to fetch the firmware from FUS, alternatively the device serial number can be used.
 #
+#   TARGET_FIRMWARE_VERSION
+#     Optional exact PDA/CSC/MODEM version required for the target firmware cache.
+#     This is useful when a port must retain an older bootloader-compatible device base.
+#
 #   [SOURCE/TARGET]_EXTRA_FIRMWARES
 #     If defined, this set of extra devices firmwares will be downloaded/extracted when running `download_fw`/`extract_fw`
 #     along with the ones set in [SOURCE/TARGET]_FIRMWARE.
@@ -476,6 +480,7 @@ fi
         echo "TARGET_ASSERT_MODEL=\"\""
     fi
     GET_BUILD_VAR "TARGET_FIRMWARE"
+    GET_BUILD_VAR "TARGET_FIRMWARE_VERSION" "none"
     if [ "${#TARGET_EXTRA_FIRMWARES[@]}" -ge 1 ]; then
         echo "TARGET_EXTRA_FIRMWARES=\"$(IFS=":"; printf '%s' "${TARGET_EXTRA_FIRMWARES[*]}")\""
     else
