@@ -9,13 +9,7 @@ TARGET_NAME="Galaxy S21 FE 5G (Qualcomm)"
 TARGET_CODENAME="r9q2"
 TARGET_ASSERT_MODEL=("SM-G990B2")
 TARGET_PLATFORM="sm8350"
-# [
-# FIXME: FUS requires an IMEI/serial matching the model to download firmware.
-# Replace the placeholder below with the first 8 digits (TAC) of a real
-# SM-G990B2 IMEI, or a full IMEI/serial number; samloader generates the
-# remaining digits from a TAC automatically.
-TARGET_FIRMWARE="SM-G990B2/EUX/00000000"
-# ]
+TARGET_FIRMWARE="SM-G990B2/EUX/350370851234560"
 TARGET_EXTRA_FIRMWARES=()
 TARGET_PLATFORM_SDK_VERSION=36
 
