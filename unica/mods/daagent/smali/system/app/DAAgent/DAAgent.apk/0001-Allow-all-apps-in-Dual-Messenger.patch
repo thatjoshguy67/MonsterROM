@@ -379,26 +379,6 @@
 -    return-object v0
 +    return-void
  .end method
---- a/smali/com/samsung/android/da/daagent/receiver/DualAppIntentReceiver.smali
-+++ b/smali/com/samsung/android/da/daagent/receiver/DualAppIntentReceiver.smali
-@@ -329,6 +329,8 @@
- 
-     if-eqz v0, :cond_17
- 
-+    invoke-static {v2}, Lcom/samsung/android/da/daagent/utils/DAUtility;->updateWhitelistAppsInSystemServer(Landroid/content/Context;)V
-+
-     invoke-static {v2}, Lcom/samsung/android/da/daagent/service/SendSaLogService;->schedule(Landroid/content/Context;)V
- 
-     invoke-static {}, Lcom/samsung/android/da/daagent/utils/DAUtility;->getDualAppProfileId()I
-@@ -745,8 +747,6 @@
-     invoke-virtual {v0, v7, v1}, Lcom/samsung/android/da/daagent/provider/DualAppDBHelper;->writeDaLog(Ljava/lang/String;Ljava/lang/String;)V
- 
-     :cond_13
--    invoke-static {v2}, Lcom/samsung/android/da/daagent/utils/DAUtility;->updateWhitelistAppsInSystemServer(Landroid/content/Context;)V
--
-     new-instance v1, Landroid/os/Bundle;
- 
-     invoke-direct {v1}, Landroid/os/Bundle;-><init>()V
 --- a/smali/com/samsung/android/da/daagent/utils/DAUtility.smali
 +++ b/smali/com/samsung/android/da/daagent/utils/DAUtility.smali
 @@ -1904,50 +1904,19 @@
