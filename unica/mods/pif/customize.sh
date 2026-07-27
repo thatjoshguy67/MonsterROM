@@ -1,3 +1,6 @@
+# Smali method signatures below contain '$' (inner-class separator) inside
+# single quotes, which shellcheck flags as SC2016; that is intentional here.
+# shellcheck disable=SC2016
 APPLY_PATCH "system" "system/framework/framework.jar" \
     "$MODPATH/framework.jar/0001-Introduce-PlayIntegrityHooks.patch"
 SMALI_PATCH "system" "system/framework/framework.jar" \

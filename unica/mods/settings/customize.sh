@@ -188,11 +188,19 @@ SMALI_PATCH "system" "system/framework/services.jar" \
     'verifyASKStokenForPackage(Ljava/lang/String;Ljava/lang/String;J[Landroid/content/pm/Signature;Ljava/lang/String;Ljava/lang/String;Z)I' \
     'ro.build.official.release' \
     'persist.sys.unica.asks'
+# Give the ASKS property a default of "true" by turning the one-arg
+# SystemProperties.get(key) into get(key, "true"). The key/scratch registers
+# (v6/v10) are compiler-assigned and drift per firmware; a correct blind
+# re-encode on services.jar risks a bootloop (the two-arg invoke needs both
+# registers to fit the 4-bit non-range form). This only changes the DEFAULT:
+# the property-name swap above already applied, so the ASKS bypass still works
+# opt-in via persist.sys.unica.asks. Skip non-fatally if the line drifted.
 SMALI_PATCH "system" "system/framework/services.jar" \
     "smali/com/android/server/asks/ASKSManagerService.smali" "replace" \
     'verifyASKStokenForPackage(Ljava/lang/String;Ljava/lang/String;J[Landroid/content/pm/Signature;Ljava/lang/String;Ljava/lang/String;Z)I' \
     'invoke-static {v6}, Landroid/os/SystemProperties;->get(Ljava/lang/String;)Ljava/lang/String;' \
-    'const-string/jumbo v10, "true"\n\n    invoke-static {v6, v10}, Landroid/os/SystemProperties;->get(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;'
+    'const-string/jumbo v10, "true"\n\n    invoke-static {v6, v10}, Landroid/os/SystemProperties;->get(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;' || \
+    LOGW "ASKS default-true hook: SystemProperties.get line drifted; ASKS bypass stays opt-in via persist.sys.unica.asks"
 unset ASKS_SMALI ASKS_POLICY_METHOD
 
 LOG_STEP_IN "- Adding UN1CA Settings"
