@@ -17,6 +17,54 @@ ABORT()
 
 # APPLY_PATCH <partition> <apk/jar> <patch>
 # Applies a unified diff patch to the provided APK/JAR decoded directory.
+_RESOLVE_PATCH_SMALI_PATHS()
+{
+    local TARGET_DIR="$1"
+    local PATCH="$2"
+    local OUTPUT="$3"
+    local CHANGED=false
+
+    cp "$PATCH" "$OUTPUT" || return 1
+
+    while IFS= read -r PATCH_PATH; do
+        if [ -f "$TARGET_DIR/$PATCH_PATH" ] || [[ "$PATCH_PATH" != smali*/* ]]; then
+            continue
+        fi
+
+        local SMALI_SUFFIX="${PATCH_PATH#*/}"
+        local MATCHES
+        MATCHES="$(find "$TARGET_DIR" -type f -path "*/$SMALI_SUFFIX")"
+
+        if [ -n "$MATCHES" ] && [ "$(printf "%s\n" "$MATCHES" | wc -l)" -eq 1 ]; then
+            local RESOLVED_PATH="${MATCHES#"$TARGET_DIR"/}"
+            local OUTPUT_TMP="$OUTPUT.tmp"
+
+            awk -v OLD="$PATCH_PATH" -v NEW="$RESOLVED_PATH" '
+                function replace_literal(line, old, new, index_at, result) {
+                    result = ""
+                    while ((index_at = index(line, old)) > 0) {
+                        result = result substr(line, 1, index_at - 1) new
+                        line = substr(line, index_at + length(old))
+                    }
+                    return result line
+                }
+                { print replace_literal($0, OLD, NEW) }
+            ' "$OUTPUT" > "$OUTPUT_TMP" && mv "$OUTPUT_TMP" "$OUTPUT" || return 1
+
+            LOG "- Resolved patch path \"$PATCH_PATH\" to \"$RESOLVED_PATH\""
+            CHANGED=true
+        fi
+    done < <(
+        awk '/^(---|\+\+\+) [ab]\// {
+            path = $2
+            sub(/^[ab]\//, "", path)
+            print path
+        }' "$PATCH" | LC_ALL=C sort -u
+    )
+
+    $CHANGED
+}
+
 APPLY_PATCH()
 {
     _CHECK_NON_EMPTY_PARAM "PARTITION" "$1" || return 1
@@ -44,18 +92,33 @@ APPLY_PATCH()
     DECODE_APK "$PARTITION" "$FILE" || return 1
 
     local TARGET_DIR="$APKTOOL_DIR/$PARTITION/${FILE//system\//}"
+    local PATCH_TO_APPLY="$PATCH"
+    local RESOLVED_PATCH
 
     LOG "- Applying \"$(grep "^Subject:" "$PATCH" | sed "s/.*PATCH] //")\" to /$PARTITION/$FILE"
     if ! LC_ALL=C git apply --check --directory="$TARGET_DIR" --unsafe-paths "$PATCH" &> /dev/null; then
-        case "$PATCH" in
-            *"/audio/virtual_vib/SecSettings.apk/0001-Disable-virtual-vibration-support.patch")
-                LOG "- Skipping obsolete SecSettings virtual-vibration patch"
-                return 0
-                ;;
-        esac
+        RESOLVED_PATCH="$(mktemp)"
+        if _RESOLVE_PATCH_SMALI_PATHS "$TARGET_DIR" "$PATCH" "$RESOLVED_PATCH"; then
+            PATCH_TO_APPLY="$RESOLVED_PATCH"
+        else
+            rm -f "$RESOLVED_PATCH"
+            RESOLVED_PATCH=""
+
+            case "$PATCH" in
+                *"/audio/virtual_vib/SecSettings.apk/0001-Disable-virtual-vibration-support.patch")
+                    LOG "- Skipping obsolete SecSettings virtual-vibration patch"
+                    return 0
+                    ;;
+            esac
+        fi
     fi
 
-    EVAL "LC_ALL=C git apply --directory=\"$TARGET_DIR\" --verbose --unsafe-paths \"$PATCH\"" || return 1
+    if ! EVAL "LC_ALL=C git apply --directory=\"$TARGET_DIR\" --verbose --unsafe-paths \"$PATCH_TO_APPLY\""; then
+        [ -n "$RESOLVED_PATCH" ] && rm -f "$RESOLVED_PATCH"
+        return 1
+    fi
+
+    [ -n "$RESOLVED_PATCH" ] && rm -f "$RESOLVED_PATCH"
 }
 
 # DECODE_APK <partition> <apk/jar>
