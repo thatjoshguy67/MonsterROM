@@ -79,7 +79,7 @@ SMALI_PATCH()
         MATCHES="$(find "$FILE_PATH" -type f -path "*/$SMALI_SUFFIX")"
 
         if [ -n "$MATCHES" ] && [ "$(printf "%s\n" "$MATCHES" | wc -l)" -eq 1 ]; then
-            local RESOLVED_SMALI="${MATCHES#$FILE_PATH/}"
+            local RESOLVED_SMALI="${MATCHES#"$FILE_PATH"/}"
             LOG "- Resolved \"$SMALI\" to \"$RESOLVED_SMALI\" in /$PARTITION/$FILE"
             SMALI="$RESOLVED_SMALI"
         else
