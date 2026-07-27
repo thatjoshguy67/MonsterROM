@@ -125,8 +125,56 @@ jobs:
           retry_on: error
           command: ./scripts/download_fw.sh
 
+      - name: Import pinned r9q2 target firmware
+        if: matrix.target == 'r9q2'
+        env:
+          PINNED_TARGET_FIRMWARE: G990B2XXSFHYI1/G990B2OXMFHYI1/G990B2XXSFHYI1
+          TARGET_AP_ARCHIVE: /mnt/c/Users/Josh/Downloads/AP_G990B2XXSFHYI1_G990B2XXSFHYI1_MQB100770420_REV00_user_low_ship_MULTI_CERT_meta_OS15.tar.md5.zip
+          TARGET_BL_ARCHIVE: /mnt/c/Users/Josh/Downloads/BL_G990B2XXSFHYI1_G990B2XXSFHYI1_MQB100770420_REV00_user_low_ship_MULTI_CERT.tar.md5.zip
+        run: |
+          target_odin_dir="$ODIN_DIR/SM-G990B2_EUX"
+          target_fw_dir="$FW_DIR/SM-G990B2_EUX"
+
+          if [ -f "$target_fw_dir/.extracted" ] &&
+              [ "$(cat "$target_fw_dir/.extracted")" = "$PINNED_TARGET_FIRMWARE" ]; then
+            echo "Pinned target firmware is already extracted"
+            exit 0
+          fi
+
+          for archive in "$TARGET_AP_ARCHIVE" "$TARGET_BL_ARCHIVE"; do
+            if [ ! -f "$archive" ]; then
+              echo "::error::Pinned target firmware archive not found: $archive"
+              exit 1
+            fi
+            unzip -tq "$archive"
+          done
+
+          if [ "$target_odin_dir" != "$ODIN_DIR/SM-G990B2_EUX" ] ||
+              [ "$target_fw_dir" != "$FW_DIR/SM-G990B2_EUX" ]; then
+            echo "::error::Refusing to replace an unexpected firmware cache path"
+            exit 1
+          fi
+
+          rm -rf -- "$target_odin_dir" "$target_fw_dir"
+          mkdir -p "$target_odin_dir"
+          unzip -j -o "$TARGET_AP_ARCHIVE" '*.tar.md5' -d "$target_odin_dir"
+          unzip -j -o "$TARGET_BL_ARCHIVE" '*.tar.md5' -d "$target_odin_dir"
+
+          while IFS= read -r package; do
+            file_name="$(basename "${package%.md5}")"
+            footer_length="$((32 + 2 + ${#file_name} + 1))"
+            stored_hash="$(tail -c "$footer_length" "$package" | cut -d " " -f 1 -s)"
+            calculated_hash="$(head -c-"$footer_length" "$package" | md5sum | cut -d " " -f 1 -s)"
+            if [ "${#stored_hash}" -ne 32 ] || [ "$stored_hash" != "$calculated_hash" ]; then
+              echo "::error::Samsung MD5 verification failed: $(basename "$package")"
+              exit 1
+            fi
+          done < <(find "$target_odin_dir" -type f -name '*.md5')
+
+          printf '%s' "$PINNED_TARGET_FIRMWARE" > "$target_odin_dir/.downloaded"
+
       - name: Extract stock firmwares
         run: ./scripts/extract_fw.sh
 
       - name: Build ROM
-        run: ./scripts/make_rom.sh
+        run: ./scripts/make_rom.sh -z
