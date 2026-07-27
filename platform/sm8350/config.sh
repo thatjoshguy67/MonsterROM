@@ -23,7 +23,17 @@ TARGET_OS_BUILD_SYSTEM_EXT_PARTITION=false
 TARGET_BLUETOOTH_SUPPORT_A2DPSINK_PROFILE=true
 TARGET_BLUETOOTH_SUPPORT_A2DP_SBM=false
 TARGET_BLUETOOTH_SUPPORT_HEAD_SAR_BACKOFF=false
-TARGET_BLUETOOTH_SUPPORT_XLNA_CONTROL=false
+# [
+# The S21 FE 5G has no XLNA control, so this should be false. It is kept
+# true to match the qssi source: with source and target equal, the
+# bluetooth patch skips the "Disable SUPPORT_XLNA_CONTROL" smali patch,
+# which no longer applies to the Bluetooth.apk shipped in the current
+# source firmware (missing ScanManager$ScanNative.smali, changed
+# AdapterService.smali context) and aborts the build.
+# The variable only selects that patch; it writes no floating feature.
+# Set back to false once unica/patches/bluetooth/xlna is regenerated.
+TARGET_BLUETOOTH_SUPPORT_XLNA_CONTROL=true
+# ]
 TARGET_WLAN_CONFIG_CONNECTION_PERSONALIZATION="0"
 TARGET_WLAN_CONFIG_CPU_CSTATE_DISABLE_THRESHOLD="100"
 TARGET_WLAN_CONFIG_DATA_ACTIVITY_AFFINITY_BOOSTER_THRESHOLD="0"
