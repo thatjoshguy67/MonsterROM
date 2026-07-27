@@ -610,16 +610,20 @@ if [[ "$SOURCE_LCD_CONFIG_HFR_MODE" != "$TARGET_LCD_CONFIG_HFR_MODE" ]]; then
         "<clinit>()V" \
         "$SOURCE_LCD_CONFIG_HFR_MODE" \
         "$TARGET_LCD_CONFIG_HFR_MODE"
-    SMALI_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
-        "smali_classes3/com/samsung/android/settings/display/SecDisplayUtils.smali" "replace" \
-        "getHighRefreshRateSeamlessType(Landroid/content/Context;I)I" \
-        "$SOURCE_LCD_CONFIG_HFR_MODE" \
-        "$TARGET_LCD_CONFIG_HFR_MODE" || true
-    SMALI_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
-        "smali_classes3/com/samsung/android/settings/display/SecDisplayUtils.smali" "replace" \
-        "isSupportMaxHS60RefreshRate(Landroid/content/Context;I)Z" \
-        "$SOURCE_LCD_CONFIG_HFR_MODE" \
-        "$TARGET_LCD_CONFIG_HFR_MODE" || true
+    if [ "$SOURCE_PLATFORM_SDK_VERSION" -lt "37" ]; then
+        SMALI_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
+            "smali_classes3/com/samsung/android/settings/display/SecDisplayUtils.smali" "replace" \
+            "getHighRefreshRateSeamlessType(Landroid/content/Context;I)I" \
+            "$SOURCE_LCD_CONFIG_HFR_MODE" \
+            "$TARGET_LCD_CONFIG_HFR_MODE"
+        SMALI_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
+            "smali_classes3/com/samsung/android/settings/display/SecDisplayUtils.smali" "replace" \
+            "isSupportMaxHS60RefreshRate(Landroid/content/Context;I)Z" \
+            "$SOURCE_LCD_CONFIG_HFR_MODE" \
+            "$TARGET_LCD_CONFIG_HFR_MODE"
+    else
+        LOG "- Skipping removed One UI 9 SecSettings HFR mode helpers"
+    fi
     SMALI_PATCH "system" "system/priv-app/SettingsProvider/SettingsProvider.apk" \
         "smali/com/android/providers/settings/DatabaseHelper.smali" "replace" \
         "loadRefreshRateMode(Landroid/database/sqlite/SQLiteStatement;Ljava/lang/String;)V" \
@@ -656,16 +660,20 @@ if [[ "$SOURCE_LCD_CONFIG_HFR_SUPPORTED_REFRESH_RATE" != "$TARGET_LCD_CONFIG_HFR
             "getMainInstance()Lcom/samsung/android/hardware/display/RefreshRateConfig;" \
             "$SOURCE_LCD_CONFIG_HFR_SUPPORTED_REFRESH_RATE" \
             "${TARGET_LCD_CONFIG_HFR_SUPPORTED_REFRESH_RATE//none/}"
-        SMALI_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
-            "smali_classes3/com/samsung/android/settings/display/SecDisplayUtils.smali" "replace" \
-            "getHighRefreshRateSupportedValues(Landroid/content/Context;I)[Ljava/lang/String;" \
-            "$SOURCE_LCD_CONFIG_HFR_SUPPORTED_REFRESH_RATE" \
-            "${TARGET_LCD_CONFIG_HFR_SUPPORTED_REFRESH_RATE//none/}" || true
-        SMALI_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
-            "smali_classes3/com/samsung/android/settings/display/SecDisplayUtils.smali" "replace" \
-            "isSupportMaxHS60RefreshRate(Landroid/content/Context;I)Z" \
-            "$SOURCE_LCD_CONFIG_HFR_SUPPORTED_REFRESH_RATE" \
-            "${TARGET_LCD_CONFIG_HFR_SUPPORTED_REFRESH_RATE//none/}" || true
+        if [ "$SOURCE_PLATFORM_SDK_VERSION" -lt "37" ]; then
+            SMALI_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
+                "smali_classes3/com/samsung/android/settings/display/SecDisplayUtils.smali" "replace" \
+                "getHighRefreshRateSupportedValues(Landroid/content/Context;I)[Ljava/lang/String;" \
+                "$SOURCE_LCD_CONFIG_HFR_SUPPORTED_REFRESH_RATE" \
+                "${TARGET_LCD_CONFIG_HFR_SUPPORTED_REFRESH_RATE//none/}"
+            SMALI_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
+                "smali_classes3/com/samsung/android/settings/display/SecDisplayUtils.smali" "replace" \
+                "isSupportMaxHS60RefreshRate(Landroid/content/Context;I)Z" \
+                "$SOURCE_LCD_CONFIG_HFR_SUPPORTED_REFRESH_RATE" \
+                "${TARGET_LCD_CONFIG_HFR_SUPPORTED_REFRESH_RATE//none/}"
+        else
+            LOG "- Skipping removed One UI 9 SecSettings supported-rate helpers"
+        fi
         SMALI_PATCH "system_ext" "priv-app/SystemUI/SystemUI.apk" \
             "smali_classes2/com/android/systemui/keyguard/KeyguardViewMediatorHelperImpl\$\$ExternalSyntheticLambda0.smali" "replace" \
             "invoke()Ljava/lang/Object;" \
@@ -703,8 +711,8 @@ if [[ "$SOURCE_LCD_CONFIG_HFR_SUPPORTED_REFRESH_RATE_NS" != "$TARGET_LCD_CONFIG_
                 "${TARGET_LCD_CONFIG_HFR_SUPPORTED_REFRESH_RATE_NS//none/}"
         fi
     else
-        # TODO handle this condition
-        LOG_MISSING_PATCHES "SOURCE_LCD_CONFIG_HFR_SUPPORTED_REFRESH_RATE_NS" "TARGET_LCD_CONFIG_HFR_SUPPORTED_REFRESH_RATE_NS"
+        SET_FLOATING_FEATURE_CONFIG "SEC_FLOATING_FEATURE_LCD_CONFIG_HFR_SUPPORTED_REFRESH_RATE_NS" \
+            "$TARGET_LCD_CONFIG_HFR_SUPPORTED_REFRESH_RATE_NS"
     fi
 fi
 
