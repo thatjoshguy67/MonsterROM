@@ -56,3 +56,6 @@ TARGET_RIL_SIM_CONFIG_MULTISIM_TRAYCOUNT="1"
 TARGET_RIL_SUPPORT_WATERPROOF_SIM_TRAY_MSG=true
 TARGET_SECURITY_CONFIG_ESE_CHIP_VENDOR="NXP"
 TARGET_SECURITY_CONFIG_ESE_COS_NAME="JCOP5.3T"
+# Keep the source OWE implementation enabled. SM8350 supports Enhanced Open,
+# and One UI 9 already carries the matching Settings and semwifi-service code.
+TARGET_WLAN_SUPPORT_MOBILEAP_OWE=true
