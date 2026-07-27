@@ -43,8 +43,19 @@ APPLY_PATCH()
 
     DECODE_APK "$PARTITION" "$FILE" || return 1
 
+    local TARGET_DIR="$APKTOOL_DIR/$PARTITION/${FILE//system\//}"
+
     LOG "- Applying \"$(grep "^Subject:" "$PATCH" | sed "s/.*PATCH] //")\" to /$PARTITION/$FILE"
-    EVAL "LC_ALL=C git apply --directory=\"$APKTOOL_DIR/$PARTITION/${FILE//system\//}\" --verbose --unsafe-paths \"$PATCH\"" || return 1
+    if ! LC_ALL=C git apply --check --directory="$TARGET_DIR" --unsafe-paths "$PATCH" &> /dev/null; then
+        case "$PATCH" in
+            *"/audio/virtual_vib/SecSettings.apk/0001-Disable-virtual-vibration-support.patch")
+                LOG "- Skipping obsolete SecSettings virtual-vibration patch"
+                return 0
+                ;;
+        esac
+    fi
+
+    EVAL "LC_ALL=C git apply --directory=\"$TARGET_DIR\" --verbose --unsafe-paths \"$PATCH\"" || return 1
 }
 
 # DECODE_APK <partition> <apk/jar>
