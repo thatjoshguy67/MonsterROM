@@ -97,7 +97,7 @@ _SETUPWIZARD_TEXT_ID="$(_SETUPWIZARD_PUBLIC_ID "string" "disclaimer_unica_descri
 
 LOG "- Patching custom disclaimer page in /system/system/priv-app/SecSetupWizard_Global.apk"
 if ! grep -q "UN1CA force disclaimer step" "$_SETUPWIZARD_LIST_SMALI"; then
-    awk '
+    if awk '
         BEGIN { in_disclaimer = 0; changed = 0 }
         /const-string .*"disclaimer"/ { in_disclaimer = 1 }
         in_disclaimer && index($0, "if-lez v9, :cond_46") {
@@ -111,14 +111,18 @@ if ! grep -q "UN1CA force disclaimer step" "$_SETUPWIZARD_LIST_SMALI"; then
         }
         { print }
         END { if (!changed) exit 1 }
-    ' "$_SETUPWIZARD_LIST_SMALI" > "$_SETUPWIZARD_LIST_SMALI.tmp" && \
+    ' "$_SETUPWIZARD_LIST_SMALI" > "$_SETUPWIZARD_LIST_SMALI.tmp"; then
         mv "$_SETUPWIZARD_LIST_SMALI.tmp" "$_SETUPWIZARD_LIST_SMALI"
-    [ $? -ne 0 ] && { LOG "\033[0;31m! ERROR: custom disclaimer sequence patch failed\033[0m"; return 1; }
+    else
+        rm -f "$_SETUPWIZARD_LIST_SMALI.tmp"
+        LOG "\033[0;33m! Custom disclaimer sequence drifted; leaving the stock step flow\033[0m"
+    fi
 fi
 
 _SETUPWIZARD_DISCLAIMER_SMALI="$_SETUPWIZARD_APK_DIR/smali/com/sec/android/app/SecSetupWizard/UI/DisclaimerActivity.smali"
-if ! grep -q "UN1CA custom disclaimer" "$_SETUPWIZARD_DISCLAIMER_SMALI"; then
-    awk -v ICON_ID="$_SETUPWIZARD_ICON_ID" -v TEXT_ID="$_SETUPWIZARD_TEXT_ID" '
+if [ -f "$_SETUPWIZARD_DISCLAIMER_SMALI" ] && \
+        ! grep -q "UN1CA custom disclaimer" "$_SETUPWIZARD_DISCLAIMER_SMALI"; then
+    if awk -v ICON_ID="$_SETUPWIZARD_ICON_ID" -v TEXT_ID="$_SETUPWIZARD_TEXT_ID" '
         BEGIN { icon_done = 0; text_done = 0 }
         {
             print
@@ -160,9 +164,14 @@ if ! grep -q "UN1CA custom disclaimer" "$_SETUPWIZARD_DISCLAIMER_SMALI"; then
             }
         }
         END { if (!icon_done || !text_done) exit 1 }
-    ' "$_SETUPWIZARD_DISCLAIMER_SMALI" > "$_SETUPWIZARD_DISCLAIMER_SMALI.tmp" && \
+    ' "$_SETUPWIZARD_DISCLAIMER_SMALI" > "$_SETUPWIZARD_DISCLAIMER_SMALI.tmp"; then
         mv "$_SETUPWIZARD_DISCLAIMER_SMALI.tmp" "$_SETUPWIZARD_DISCLAIMER_SMALI"
-    [ $? -ne 0 ] && { LOG "\033[0;31m! ERROR: custom disclaimer patch failed\033[0m"; return 1; }
+    else
+        rm -f "$_SETUPWIZARD_DISCLAIMER_SMALI.tmp"
+        LOG "\033[0;33m! Custom disclaimer UI drifted; leaving the stock page\033[0m"
+    fi
+elif [ ! -f "$_SETUPWIZARD_DISCLAIMER_SMALI" ]; then
+    LOG "\033[0;33m! DisclaimerActivity moved; leaving the stock page\033[0m"
 fi
 
 unset PATCH_INST CONTENT
