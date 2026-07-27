@@ -26,11 +26,7 @@ if ! awk -v FN="$DAAGENT_RECEIVER_METHOD" '
     }
     inside && !inserted && index($0, "SendSaLogService;->schedule(Landroid/content/Context;)V") {
         line = $0
-        sub(
-            "Lcom/samsung/android/da/daagent/service/SendSaLogService;->schedule",
-            "Lcom/samsung/android/da/daagent/utils/DAUtility;->updateWhitelistAppsInSystemServer",
-            line
-        )
+        sub("Lcom/samsung/android/da/daagent/service/SendSaLogService;->schedule", "Lcom/samsung/android/da/daagent/utils/DAUtility;->updateWhitelistAppsInSystemServer", line)
         print line
         print ""
         inserted = 1
