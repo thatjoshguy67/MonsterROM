@@ -1,0 +1,64 @@
+# Copyright (c) 2026 Salvo Giangreco
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+# Device configuration file for Galaxy S21 FE 5G 2023 (Qualcomm) (r9q2)
+# The SM-G990B2 is the 2023 revision of the SM-G990B (r9q): same
+# Snapdragon 888 (SM8350) hardware and partition layout, but its own
+# codename and firmware line.
+TARGET_NAME="Galaxy S21 FE 5G (Qualcomm)"
+TARGET_CODENAME="r9q2"
+TARGET_ASSERT_MODEL=("SM-G990B2")
+TARGET_PLATFORM="sm8350"
+# [
+# FIXME: FUS requires an IMEI/serial matching the model to download firmware.
+# Replace the placeholder below with the first 8 digits (TAC) of a real
+# SM-G990B2 IMEI, or a full IMEI/serial number; samloader generates the
+# remaining digits from a TAC automatically.
+TARGET_FIRMWARE="SM-G990B2/EUX/00000000"
+# ]
+TARGET_EXTRA_FIRMWARES=()
+TARGET_PLATFORM_SDK_VERSION=36
+
+# Dynamic partitions
+TARGET_SUPER_PARTITION_SIZE=11744051200
+TARGET_QTI_DYNAMIC_PARTITIONS_SIZE=11739856896
+
+# SEC Product Feature
+TARGET_AUDIO_CONFIG_RECORDALIVE_LIB_VERSION="07020"
+TARGET_AUDIO_SUPPORT_ACH_RINGTONE=false
+TARGET_AUDIO_SUPPORT_DUAL_SPEAKER=true
+TARGET_AUDIO_SUPPORT_VIRTUAL_VIBRATION_SOUND=false
+TARGET_CAMERA_SUPPORT_CAMERAX_EXTENSION=true
+TARGET_CAMERA_SUPPORT_CUTOUT_PROTECTION=false
+TARGET_CAMERA_SUPPORT_MASS_APP_FLAVOR=true
+TARGET_CAMERA_SUPPORT_SDK_SERVICE=true
+TARGET_COMMON_CONFIG_MDNIE_MODE="61457"
+TARGET_COMMON_SUPPORT_DYN_RESOLUTION_CONTROL=false
+TARGET_COMMON_SUPPORT_EMBEDDED_SIM=false
+# [
+# Stock r9q2 uses dvfs_policy_sm8350_xx/siop_r9q_sm8350, but the converted
+# siop_model.xml is not available in-tree yet; fall back to the generic
+# policies so the dvfs patch does not abort. Replace with the stock names
+# once target/r9q2/dvfs/siop_model.xml is provided.
+TARGET_DVFSAPP_CONFIG_DVFS_POLICY_FILENAME="dvfs_policy_default"
+TARGET_DVFSAPP_CONFIG_SSRM_POLICY_FILENAME="ssrm_default"
+# ]
+TARGET_FINGERPRINT_CONFIG_SENSOR="google_touch_display_optical,settings=3"
+TARGET_LCD_CONFIG_COLOR_WEAKNESS_SOLUTION="0"
+TARGET_LCD_CONFIG_CONTROL_AUTO_BRIGHTNESS="5"
+TARGET_LCD_CONFIG_HFR_DEFAULT_REFRESH_RATE="120"
+# [
+# Enable seamless refresh rate feature
+# Check target/r9q2/patches/hfr/customize.sh for more info
+TARGET_LCD_CONFIG_HFR_MODE="2"
+TARGET_LCD_CONFIG_HFR_SUPPORTED_REFRESH_RATE="60,120"
+TARGET_LCD_CONFIG_HFR_SUPPORTED_REFRESH_RATE_NS="60"
+TARGET_LCD_CONFIG_SEAMLESS_BRT="89,91"
+TARGET_LCD_CONFIG_SEAMLESS_LUX="200,2500"
+# ]
+TARGET_LCD_SUPPORT_MDNIE_HW=false
+TARGET_RIL_FEATURES="onebinary"
+TARGET_RIL_SIM_CONFIG_MULTISIM_TRAYCOUNT="1"
+TARGET_RIL_SUPPORT_WATERPROOF_SIM_TRAY_MSG=true
+TARGET_SECURITY_CONFIG_ESE_CHIP_VENDOR="NXP"
+TARGET_SECURITY_CONFIG_ESE_COS_NAME="JCOP5.3T"

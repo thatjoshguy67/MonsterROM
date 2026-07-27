@@ -1,0 +1,1 @@
+is_substring("G990B2XX", getprop("ro.boot.bootloader")) && verify_no_downgrade(getprop("ro.boot.bootloader"), "G990B2XXSIIZB2") && abort("E3003: This package requires Android 16 firmware.");
