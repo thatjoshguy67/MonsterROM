@@ -1,0 +1,4 @@
+id=disable_encryption
+name=Disable data encryption
+author=Claude
+description=Turns the vendor fstab file-based encryption into the legacy encryptable marker so /data mounts without dm-default-key key provisioning, which the One UI 9 system cannot do against the Android 11 vendor keymaster.
