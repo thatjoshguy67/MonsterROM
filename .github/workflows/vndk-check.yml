@@ -1,8 +1,5 @@
 name: VNDK Check
 
-# Diagnostic-only. Runs on the self-hosted runner and reports r9q2 vendor
-# details (VNDK, and the vendor fstab encryption flags) from the already-built
-# tree, to diagnose the boot loop. Own branch/trigger so it does NOT re-run CI.
 on:
   workflow_dispatch:
   push:
@@ -11,45 +8,21 @@ on:
 
 jobs:
   vndk-check:
-    name: Report r9q2 vendor details
+    name: Report r9q2 device codename
     runs-on: [self-hosted, linux, x64]
     steps:
-      - name: Inspect extracted + built r9q2 vendor
+      - name: Dump device codename from G990B2 firmware
         run: |
           set +e
           W="$GITHUB_WORKSPACE"
           [ -d "$W/out" ] || W="$HOME/actions-runner/_work/MonsterROM/MonsterROM"
-          echo "Workspace: $W"
           cd "$W" || exit 0
-
-          echo "=============================================================="
-          echo "A) STOCK r9q2 vendor fstab(s) - encryption / mount flags"
-          echo "=============================================================="
-          find out -path '*SM-G990B2*' -path '*vendor*' -name 'fstab*' 2>/dev/null | while read -r f; do
-            echo "--- $f"
-            grep -nE '/data|/metadata|/userdata|fileencryption|metadata_encryption|forceencrypt|encryptable|keydirectory' "$f" 2>/dev/null
-          done
-
-          echo "=============================================================="
-          echo "B) BUILT (final ROM) vendor fstab(s) - did the build change them?"
-          echo "=============================================================="
-          find out/target/r9q2 -path '*vendor*' -name 'fstab*' 2>/dev/null | while read -r f; do
-            echo "--- $f"
-            grep -nE '/data|/metadata|/userdata|fileencryption|metadata_encryption|forceencrypt|encryptable|keydirectory' "$f" 2>/dev/null
-          done
-
-          echo "=============================================================="
-          echo "C) Any fstab in the built ROM's vendor_boot / boot ramdisk"
-          echo "=============================================================="
-          find out/target/r9q2 \( -name 'fstab*' -o -name '*.fstab' \) 2>/dev/null | grep -iE 'boot|ramdisk|first' | head -10 | while read -r f; do
-            echo "--- $f"
-            grep -nE '/data|/metadata|fileencryption|metadata_encryption|forceencrypt' "$f" 2>/dev/null
-          done
-
-          echo "=============================================================="
-          echo "D) FRP / VaultKeeper / encryption props in built vendor+product"
-          echo "=============================================================="
-          find out/target/r9q2 -name '*.prop' -path '*vendor*' 2>/dev/null | while read -r p; do
-            grep -HnE 'ro\.frp\.pst|vaultkeeper|ro\.crypto|forceencrypt|ro\.security' "$p" 2>/dev/null
-          done | sort -u | head -30
+          echo "=== ro.product.*.device / model / name in extracted G990B2 firmware ==="
+          find out -path '*SM-G990B2*' -name 'build.prop' 2>/dev/null | while read -r p; do
+            grep -HoE 'ro\.product\.(vendor|odm|system|product|system_ext)?\.?(device|model|name)=[A-Za-z0-9_-]+' "$p"
+          done | sort -u
+          echo "=== ro.build.product / ro.boot.em.model / bootimage ==="
+          find out -path '*SM-G990B2*' -name '*.prop' 2>/dev/null | while read -r p; do
+            grep -HoE 'ro\.build\.product=[A-Za-z0-9_-]+|ro\.boot\.em\.model=[A-Za-z0-9/_-]+|ro\.product\.board=[A-Za-z0-9_-]+' "$p"
+          done | sort -u
           echo "Done."
