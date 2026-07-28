@@ -44,9 +44,10 @@ jobs:
       - name: Generate CI matrix
         id: generate-matrix
         run: |
-          # This fork only builds the SM-G990B2 target. Keeping the matrix
-          # explicit avoids a second repository checkout before the build.
-          matrix='["r9q2"]'
+          # This fork only builds the SM-G990B2 target. Its device codename is
+          # r9q (r9q2 is only the product name), so the target is r9q. Keeping
+          # the matrix explicit avoids a second repository checkout.
+          matrix='["r9q"]'
           echo "$matrix"
           echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
 
@@ -128,7 +129,7 @@ jobs:
           command: ./scripts/download_fw.sh --ignore-target
 
       - name: Import pinned r9q2 target firmware
-        if: matrix.target == 'r9q2'
+        if: matrix.target == 'r9q'
         env:
           PINNED_TARGET_FIRMWARE: G990B2XXSFHYI1/G990B2OXMFHYI1/G990B2XXSFHYI1
           TARGET_AP_ARCHIVE: /mnt/c/Users/Josh/Downloads/AP_G990B2XXSFHYI1_G990B2XXSFHYI1_MQB100770420_REV00_user_low_ship_MULTI_CERT_meta_OS15.tar.md5.zip

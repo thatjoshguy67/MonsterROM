@@ -1,5 +1,5 @@
 <?xml version= "1.0" encoding= "UTF-8"?>
-<!-- Imported from target/r9s (Galaxy S21 FE 5G Exynos): same camera hardware/app generation. Replace with the stock SM-G990B dump of /system/cameradata/camera-feature.xml when available. -->
+<!-- Imported from target/r9s (Galaxy S21 FE 5G Exynos): same camera hardware/app generation. Replace with the stock SM-G990B2 dump of /system/cameradata/camera-feature.xml when available. -->
 <resources>
     <!-- Shootingmode -->
     <local name="SHOOTING_MODE_LIVE_FOCUS" back="LIVE_FOCUS" front="SELFIE_FOCUS" enable="true" more="false" order="1"/>

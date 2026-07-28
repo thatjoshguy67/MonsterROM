@@ -2,17 +2,18 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # Device configuration file for Galaxy S21 FE 5G (Qualcomm) (r9q)
-# Covers SM-G990B and its 2023 hardware revision SM-G990B2,
-# both Snapdragon 888 (SM8350) with the same r9q codename.
+# The SM-G990B2 (Snapdragon 888 / SM8350) reports device codename "r9q" in
+# ro.product.vendor.device - "r9q2" is only its product name (r9q2xxx), not the
+# codename. TARGET_CODENAME must match ro.product.vendor.device (= r9q), so the
+# codename is r9q even though the model/firmware line is SM-G990B2.
 TARGET_NAME="Galaxy S21 FE 5G (Qualcomm)"
 TARGET_CODENAME="r9q"
-TARGET_ASSERT_MODEL=("SM-G990B" "SM-G990B2")
+TARGET_ASSERT_MODEL=("SM-G990B2")
 TARGET_PLATFORM="sm8350"
-# SM-G990B2 owners: firmware from SM-G990B boots on the B2 revision (both are r9q),
-# but you can switch to "SM-G990B2/EUX/<your IMEI>" to build from B2 firmware instead.
-TARGET_FIRMWARE="SM-G990B/EUX/353718681234563"
+TARGET_FIRMWARE="SM-G990B2/EUX/350370851234560"
+TARGET_FIRMWARE_VERSION="G990B2XXSFHYI1/G990B2OXMFHYI1/G990B2XXSFHYI1"
 TARGET_EXTRA_FIRMWARES=()
-TARGET_PLATFORM_SDK_VERSION=36
+TARGET_PLATFORM_SDK_VERSION=35
 
 # Dynamic partitions
 TARGET_SUPER_PARTITION_SIZE=11744051200
@@ -31,10 +32,10 @@ TARGET_COMMON_CONFIG_MDNIE_MODE="61457"
 TARGET_COMMON_SUPPORT_DYN_RESOLUTION_CONTROL=false
 TARGET_COMMON_SUPPORT_EMBEDDED_SIM=false
 # [
-# Stock r9q uses dvfs_policy_sm8350_xx/siop_r9q_sm8350, but the converted
+# Stock r9q2 uses dvfs_policy_sm8350_xx/siop_r9q_sm8350, but the converted
 # siop_model.xml is not available in-tree yet; fall back to the generic
 # policies so the dvfs patch does not abort. Replace with the stock names
-# once target/r9q/dvfs/siop_model.xml is provided.
+# once target/r9q2/dvfs/siop_model.xml is provided.
 TARGET_DVFSAPP_CONFIG_DVFS_POLICY_FILENAME="dvfs_policy_default"
 TARGET_DVFSAPP_CONFIG_SSRM_POLICY_FILENAME="ssrm_default"
 # ]
@@ -44,7 +45,7 @@ TARGET_LCD_CONFIG_CONTROL_AUTO_BRIGHTNESS="5"
 TARGET_LCD_CONFIG_HFR_DEFAULT_REFRESH_RATE="120"
 # [
 # Enable seamless refresh rate feature
-# Check target/r9q/patches/hfr/customize.sh for more info
+# Check target/r9q2/patches/hfr/customize.sh for more info
 TARGET_LCD_CONFIG_HFR_MODE="2"
 TARGET_LCD_CONFIG_HFR_SUPPORTED_REFRESH_RATE="60,120"
 TARGET_LCD_CONFIG_HFR_SUPPORTED_REFRESH_RATE_NS="60"
@@ -57,3 +58,6 @@ TARGET_RIL_SIM_CONFIG_MULTISIM_TRAYCOUNT="1"
 TARGET_RIL_SUPPORT_WATERPROOF_SIM_TRAY_MSG=true
 TARGET_SECURITY_CONFIG_ESE_CHIP_VENDOR="NXP"
 TARGET_SECURITY_CONFIG_ESE_COS_NAME="JCOP5.3T"
+# Keep the source OWE implementation enabled. SM8350 supports Enhanced Open,
+# and One UI 9 already carries the matching Settings and semwifi-service code.
+TARGET_WLAN_SUPPORT_MOBILEAP_OWE=true

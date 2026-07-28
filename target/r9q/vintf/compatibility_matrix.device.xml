@@ -39,7 +39,7 @@
         vendor/samsung/interfaces/nfc/2.0/device_framework_compatibility_matrix.xml
         vendor/samsung/hardware/ril/URC/fcm/radio_framework_compatibility_matrix.xml
 -->
-<!-- Adapted from target/a52sxq: same-generation Samsung Qualcomm device against the same source framework. Replace with the stock SM-G990B dump of /system/etc/vintf/compatibility_matrix.device.xml when available. -->
+<!-- Adapted from target/a52sxq: same-generation Samsung Qualcomm device against the same source framework. Replace with the stock SM-G990B2 dump of /system/etc/vintf/compatibility_matrix.device.xml when available. -->
 <compatibility-matrix version="9.0" type="framework">
     <hal format="aidl">
         <name>android.hardware.authsecret.qti.spu</name>
