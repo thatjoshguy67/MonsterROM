@@ -1,0 +1,2 @@
+ui_print("Patching vbmeta.img img (verification disabled)...");
+package_extract_file("vbmeta.img", "/dev/block/by-name/vbmeta");
