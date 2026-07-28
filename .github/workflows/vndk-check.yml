@@ -1,0 +1,60 @@
+name: VNDK Check
+
+# Diagnostic-only. Runs on the self-hosted runner and reports the r9q2 vendor's
+# required VNDK / board API level from the already-extracted firmware, so we can
+# confirm whether TARGET_BOARD_API_LEVEL (currently 30) is correct.
+#
+# Deliberately on its own branch/trigger so it does NOT re-run the CI build.
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'claude/vndk-check'
+
+jobs:
+  vndk-check:
+    name: Report r9q2 vendor VNDK
+    runs-on: [self-hosted, linux, x64]
+    steps:
+      - name: Inspect extracted r9q2 vendor
+        run: |
+          set +e
+          W="$GITHUB_WORKSPACE"
+          [ -d "$W/out" ] || W="$HOME/actions-runner/_work/MonsterROM/MonsterROM"
+          echo "Workspace: $W"
+          cd "$W" || exit 0
+
+          echo "=============================================================="
+          echo "1) vendor-ndk version in r9q2 vendor vintf manifest(s)"
+          echo "=============================================================="
+          find out -path '*SM-G990B2*' \( -path '*vintf*' -a -name '*.xml' \) 2>/dev/null \
+            | while read -r m; do
+                if grep -qi 'vendor-ndk' "$m"; then
+                  echo "--- $m"
+                  grep -i -A2 'vendor-ndk' "$m"
+                fi
+              done
+
+          echo "=============================================================="
+          echo "2) ro.vndk.version / first_api_level in r9q2 vendor build.props"
+          echo "=============================================================="
+          find out -path '*SM-G990B2*' -name '*.prop' 2>/dev/null \
+            | while read -r p; do
+                grep -HoE 'ro\.(vndk\.version|vndk\.lite|board\.first_api_level|board\.api_level|product\.first_api_level|vendor\.build\.version\.sdk)=[0-9A-Za-z.]+' "$p"
+              done | sort -u
+
+          echo "=============================================================="
+          echo "3) Fallback: any vendor manifest.xml under out/ with vendor-ndk"
+          echo "=============================================================="
+          grep -rsl 'vendor-ndk' out --include='*.xml' 2>/dev/null | grep -i vendor | head -5 \
+            | while read -r m; do
+                echo "--- $m"
+                grep -i -A2 'vendor-ndk' "$m"
+              done
+
+          echo "=============================================================="
+          echo "4) What we currently tell the system to provide"
+          echo "=============================================================="
+          grep -H 'TARGET_BOARD_API_LEVEL' platform/sm8350/config.sh 2>/dev/null \
+            || echo "(config not present in this workspace tree)"
+          echo "Done."
