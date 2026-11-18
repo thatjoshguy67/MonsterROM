@@ -1,16 +1,20 @@
 Subject: [PATCH] Identify the additional QPR2 controls with the next Settings version
 
 diff --git a/apktool.yml b/apktool.yml
+index c1e96c8810f9d3f0f6a5300f56c1e55deb49f388..3c9426d88494949c1f6e2c7bd14e3599cf6f36ef 100644
 --- a/apktool.yml
 +++ b/apktool.yml
-@@ -8,8 +8,8 @@
+@@ -8,8 +8,8 @@ sdkInfo:
    minSdkVersion: 37
    targetSdkVersion: 37
  versionInfo:
--  versionCode: 40
--  versionName: 17-UN1CA.QPR2.clean5
-+  versionCode: 41
+-  versionCode: 37
+-  versionName: 17
++  versionCode: 38
 +  versionName: 17-UN1CA.QPR2.r9
  resourcesInfo:
    packageId: 127
    sparseEntries: true
+-- 
+2.43.0
+

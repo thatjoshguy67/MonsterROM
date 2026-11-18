@@ -102,6 +102,24 @@ QPR2_NATIVE_SKIP()
     return 1
 }
 
+# QPR2 feature ports whose patches have not been rebased onto the One UI 9.5
+# app sources yet. Skipped on QPR2-native donors until they are reworked;
+# set UN1CA_QPR2_PENDING_95=apply to try them anyway.
+QPR2_PENDING_95()
+{
+    [ "${UN1CA_QPR2_NATIVE:-false}" = true ] || return 1
+    [ "${UN1CA_QPR2_PENDING_95:-skip}" = apply ] && return 1
+    case "$1" in
+        recording|usb_consent|usb_permissions|capture_actions|dialer|contacts_controls| \
+        glass/SamsungDialer.apk|glass/SystemUI.apk|glass/SecMyFiles2020.apk|glass/SamsungContacts.apk| \
+        glass/SamsungVideoPlayer.apk|glass/SamsungMagnifier3.apk)
+            LOG "- Skipping QPR2 $1: not yet rebased onto One UI 9.5"
+            return 0
+            ;;
+    esac
+    return 1
+}
+
 PARADIGM_VERIFY_RUNTIME()
 (
     # Check the retained One UI 9 providers after VNDK's native-only ARM32 graft.
@@ -722,7 +740,7 @@ PERL
     MODPATH="$PARADIGM_MODPATH/qpr2/recording"
     LOG_STEP_IN "- Adding QPR2 recording"
     # Exact One UI 9 backports. The SDK-36 source remains unchanged.
-    if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
+    if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ] && ! QPR2_PENDING_95 recording; then
         # Review every input and dry-run the complete group before exposing its
         # setting or changing a recorder. Do not depend on the caller's errexit.
         DECODE_APK "system" "system/priv-app/SecSettings/SecSettings.apk" || return 1
@@ -761,7 +779,7 @@ PERL
     MODPATH="$PARADIGM_MODPATH/qpr2/usb_consent"
     LOG_STEP_IN "- Adding QPR2 usb_consent"
     # Original SDK-36 builds remain unchanged. Exact One UI 9 contracts only.
-    if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
+    if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ] && ! QPR2_PENDING_95 usb_consent; then
         APPLY_PATCH "system_ext" "priv-app/SystemUI/SystemUI.apk" \
             "$MODPATH/patches/SystemUI.apk/0001-Describe-QPR2-composite-USB-device-interfaces.patch"
         APPLY_PATCH "system_ext" "priv-app/SystemUI/SystemUI.apk" \
@@ -774,7 +792,7 @@ PERL
     MODPATH="$PARADIGM_MODPATH/qpr2/usb_permissions"
     LOG_STEP_IN "- Adding QPR2 usb_permissions"
     # Original SDK-36 builds remain unchanged. Exact One UI 9 contracts only.
-    if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
+    if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ] && ! QPR2_PENDING_95 usb_permissions; then
         DECODE_APK "system" "system/priv-app/SecSettings/SecSettings.apk" || return 1
         # Bind the full reviewed classes, including Samsung authentication, then
         # dry-run every patch before editing Settings or publishing success.
@@ -965,32 +983,48 @@ PERL
     MODPATH="$PARADIGM_MODPATH/qpr2/glass"
     LOG_STEP_IN "- Adding QPR2 glass"
     if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
-        APPLY_PATCH "system" "system/priv-app/SamsungDialer/SamsungDialer.apk" \
-            "$MODPATH/patches/SamsungDialer.apk/0001-Connect-native-Phone-glass-and-backdrop-lens.patch"
-        APPLY_PATCH "system_ext" "priv-app/SystemUI/SystemUI.apk" \
-            "$MODPATH/patches/SystemUI.apk/0001-Add-native-glass-to-brightness-and-volume-controls.patch"
-        APPLY_PATCH "system_ext" "priv-app/SystemUI/SystemUI.apk" \
-            "$MODPATH/patches/SystemUI.apk/0002-Reveal-glass-behind-native-slider-tracks.patch"
+        if ! QPR2_PENDING_95 glass/SamsungDialer.apk; then
+            APPLY_PATCH "system" "system/priv-app/SamsungDialer/SamsungDialer.apk" \
+                "$MODPATH/patches/SamsungDialer.apk/0001-Connect-native-Phone-glass-and-backdrop-lens.patch"
+        fi
+        if ! QPR2_PENDING_95 glass/SystemUI.apk; then
+            APPLY_PATCH "system_ext" "priv-app/SystemUI/SystemUI.apk" \
+                "$MODPATH/patches/SystemUI.apk/0001-Add-native-glass-to-brightness-and-volume-controls.patch"
+        fi
+        if ! QPR2_PENDING_95 glass/SystemUI.apk; then
+            APPLY_PATCH "system_ext" "priv-app/SystemUI/SystemUI.apk" \
+                "$MODPATH/patches/SystemUI.apk/0002-Reveal-glass-behind-native-slider-tracks.patch"
+        fi
         APPLY_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
             "$MODPATH/patches/SecSettings.apk/0001-Connect-existing-blur-surfaces-to-QPR2-material.patch"
-        APPLY_PATCH "system" "system/priv-app/SecMyFiles2020/SecMyFiles2020.apk" \
-            "$MODPATH/patches/SecMyFiles2020.apk/0001-Connect-existing-blur-surfaces-to-QPR2-material.patch"
+        if ! QPR2_PENDING_95 glass/SecMyFiles2020.apk; then
+            APPLY_PATCH "system" "system/priv-app/SecMyFiles2020/SecMyFiles2020.apk" \
+                "$MODPATH/patches/SecMyFiles2020.apk/0001-Connect-existing-blur-surfaces-to-QPR2-material.patch"
+        fi
         APPLY_PATCH "system" "system/priv-app/SamsungGallery2018/SamsungGallery2018.apk" \
             "$MODPATH/patches/SamsungGallery2018.apk/0001-Connect-existing-blur-surfaces-to-QPR2-material.patch"
         APPLY_PATCH "system" "system/priv-app/SamsungGallery2018/SamsungGallery2018.apk" \
             "$MODPATH/patches/SamsungGallery2018.apk/0099-Identify-QPR2-r11.patch"
-        APPLY_PATCH "system" "system/priv-app/SamsungContacts/SamsungContacts.apk" \
-            "$MODPATH/patches/SamsungContacts.apk/0001-Connect-existing-blur-surfaces-to-QPR2-material.patch"
+        if ! QPR2_PENDING_95 glass/SamsungContacts.apk; then
+            APPLY_PATCH "system" "system/priv-app/SamsungContacts/SamsungContacts.apk" \
+                "$MODPATH/patches/SamsungContacts.apk/0001-Connect-existing-blur-surfaces-to-QPR2-material.patch"
+        fi
         APPLY_PATCH "system" "system/priv-app/SecSoundPicker/SecSoundPicker.apk" \
             "$MODPATH/patches/SecSoundPicker.apk/0001-Connect-native-volume-strip-to-QPR2-material.patch"
         APPLY_PATCH "system" "system/app/SmartCapture/SmartCapture.apk" \
             "$MODPATH/patches/SmartCapture.apk/0001-Connect-Capture-toolbars-to-QPR2-material.patch"
-        APPLY_PATCH "system" "system/priv-app/SamsungVideoPlayer/SamsungVideoPlayer.apk" \
-            "$MODPATH/patches/SamsungVideoPlayer.apk/0001-Connect-native-Video-blur-to-QPR2-material.patch"
-        APPLY_PATCH "system" "system/priv-app/SoundAlive_C/SoundAlive_C.apk" \
-            "$MODPATH/patches/SoundAlive_C.apk/0001-Add-QPR2-material-to-SoundAlive-action-rows.patch"
-        APPLY_PATCH "system" "system/priv-app/SamsungMagnifier3/SamsungMagnifier3.apk" \
-            "$MODPATH/patches/SamsungMagnifier3.apk/0001-Add-QPR2-material-behind-native-Magnifier-controls.patch"
+        if ! QPR2_PENDING_95 glass/SamsungVideoPlayer.apk; then
+            APPLY_PATCH "system" "system/priv-app/SamsungVideoPlayer/SamsungVideoPlayer.apk" \
+                "$MODPATH/patches/SamsungVideoPlayer.apk/0001-Connect-native-Video-blur-to-QPR2-material.patch"
+        fi
+        if [ -f "$WORK_DIR/system/system/priv-app/SoundAlive_C/SoundAlive_C.apk" ]; then
+            APPLY_PATCH "system" "system/priv-app/SoundAlive_C/SoundAlive_C.apk" \
+                "$MODPATH/patches/SoundAlive_C.apk/0001-Add-QPR2-material-to-SoundAlive-action-rows.patch"
+        fi
+        if ! QPR2_PENDING_95 glass/SamsungMagnifier3.apk; then
+            APPLY_PATCH "system" "system/priv-app/SamsungMagnifier3/SamsungMagnifier3.apk" \
+                "$MODPATH/patches/SamsungMagnifier3.apk/0001-Add-QPR2-material-behind-native-Magnifier-controls.patch"
+        fi
     fi
     LOG_STEP_OUT
 
@@ -1007,7 +1041,7 @@ PERL
     # QPR2 dialer
     MODPATH="$PARADIGM_MODPATH/qpr2/dialer"
     LOG_STEP_IN "- Adding QPR2 dialer"
-    if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
+    if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ] && ! QPR2_PENDING_95 dialer; then
         APPLY_PATCH "system" "system/priv-app/SamsungDialer/SamsungDialer.apk" \
             "$MODPATH/patches/SamsungDialer.apk/0001-Add-fourth-native-Search-action-and-accessibility.patch"
         APPLY_PATCH "system" "system/priv-app/SamsungDialer/SamsungDialer.apk" \
@@ -1057,7 +1091,7 @@ PERL
     # QPR2 contacts_controls
     MODPATH="$PARADIGM_MODPATH/qpr2/contacts_controls"
     LOG_STEP_IN "- Adding QPR2 contacts_controls"
-    if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
+    if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ] && ! QPR2_PENDING_95 contacts_controls; then
         APPLY_PATCH "system" "system/priv-app/SamsungContacts/SamsungContacts.apk" \
             "$MODPATH/patches/SamsungContacts.apk/0001-Port-QPR2-country-aware-recipient-matching.patch"
         APPLY_PATCH "system" "system/priv-app/SamsungContacts/SamsungContacts.apk" \
@@ -1083,7 +1117,7 @@ PERL
     # QPR2 capture_actions
     MODPATH="$PARADIGM_MODPATH/qpr2/capture_actions"
     LOG_STEP_IN "- Adding QPR2 capture_actions"
-    if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
+    if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ] && ! QPR2_PENDING_95 capture_actions; then
         DECODE_APK "system" "system/app/SmartCapture/SmartCapture.apk" || return 1
         QPR2_CAPTURE_IDENTIFICATION="$(python3 "$MODPATH/verify_sources.py" "$MODPATH" \
             "$APKTOOL_DIR/system/app/SmartCapture/SmartCapture.apk")" || {
@@ -1114,7 +1148,7 @@ PERL
     # QPR2 audio_devices
     MODPATH="$PARADIGM_MODPATH/qpr2/audio_devices"
     LOG_STEP_IN "- Adding QPR2 audio_devices"
-    if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
+    if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ] && [ -f "$WORK_DIR/system/system/priv-app/SoundAlive_C/SoundAlive_C.apk" ]; then
         APPLY_PATCH "system" "system/priv-app/SoundAlive_C/SoundAlive_C.apk" \
             "$MODPATH/patches/SoundAlive_C.apk/0001-Add-QPR2-connected-audio-device-discovery.patch"
         APPLY_PATCH "system" "system/priv-app/SoundAlive_C/SoundAlive_C.apk" \
