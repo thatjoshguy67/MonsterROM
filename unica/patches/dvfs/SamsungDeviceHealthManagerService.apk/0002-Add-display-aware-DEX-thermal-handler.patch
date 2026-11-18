@@ -6,6 +6,7 @@ Observe the same desktop flag as donor p0.f.o, including hotplug.
 
 diff --git a/smali/com/sec/android/sdhms/thermal/overheatcontrol/overheatcomplex/LegacyDexOverheat.smali b/smali/com/sec/android/sdhms/thermal/overheatcontrol/overheatcomplex/LegacyDexOverheat.smali
 new file mode 100644
+index 0000000000000000000000000000000000000000..4af0f3d6ee67bd33c2b65a1233e5186aaa9969b3
 --- /dev/null
 +++ b/smali/com/sec/android/sdhms/thermal/overheatcontrol/overheatcomplex/LegacyDexOverheat.smali
 @@ -0,0 +1,220 @@
@@ -229,3 +230,6 @@ new file mode 100644
 +
 +    return-void
 +.end method
+-- 
+2.43.0
+
