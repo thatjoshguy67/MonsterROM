@@ -46,7 +46,8 @@ sub elf64 {
 }
 sub section { my($e,$name)=@_; my $s=$e->{by}{$name}; need($s,"Missing ELF section $name"); return substr($e->{data},$s->[4],$s->[5]) }
 my($directory)=@ARGV; my $source="$directory/libcap_rust.dylib.so"; my $helper="$directory/libunica_zygote_cap.so"; my $module="$ENV{SRC_DIR}/platform/exynos2100/patches/zygote";
-my $expected='b3b8e91d2b1e8d85e1e1596a7fec81f1f74bffd696fbe5a838dfcfcbc2a62fff'; need(sha($source) eq $expected,'Native zygote Rust provider changed; review capability ABI');
+# One UI 9.0 (CP2A) and One UI 9.5 (CP4A, S948BXXU6ZZKN) providers; both import cap_get_bound.
+my %accepted=map {$_=>1} ('b3b8e91d2b1e8d85e1e1596a7fec81f1f74bffd696fbe5a838dfcfcbc2a62fff','8f6c2a03e916d3fb84352a6b1a0026ed2b7e16a98720fb33693ea373a1580d3f'); my $expected=sha($source); need($accepted{$expected},'Native zygote Rust provider changed; review capability ABI');
 my $seal=json("$module/payload/helper.json"); need(sha($helper) eq $seal->{helper_sha256} && sha("$module/source/zygote-cap-compat.c") eq $seal->{source_sha256},'Native zygote helper differs from reviewed source/build');
 my $tmp=tempdir('unica-cap-XXXXXX',DIR=>$directory,CLEANUP=>1); put("$tmp/imports","cap_get_bound __unica_zygote_cap_get_bound\n"); my $candidate="$tmp/".basename($source);
 run('patchelf','--rename-dynamic-symbols',"$tmp/imports",'--output',$candidate,$source); run('patchelf','--add-needed',basename($helper),'--page-size','16384',$candidate);
