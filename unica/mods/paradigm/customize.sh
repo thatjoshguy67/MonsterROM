@@ -25,6 +25,29 @@ if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
         off|trial-r15) ;;
         *) ABORT "UN1CA_QPR2_RUNTIME_COHORT must be off or trial-r15"; return 1 ;;
     esac
+    # One UI 9.5 donors (SDK full 37.2 and later, e.g. S948BXXU6ZZKN) already ship
+    # QPR2 natively. The pinned 9.0 (CP2A) backport payloads and contracts below
+    # do not apply to them, so skip those cohorts unless explicitly overridden.
+    if [ -z "${UN1CA_QPR2_NATIVE:-}" ]; then
+        case "$(GET_PROP "system" "ro.build.version.sdk_full")" in
+            37.[2-9]*|3[89]*|[4-9][0-9]*) UN1CA_QPR2_NATIVE=true ;;
+            *) UN1CA_QPR2_NATIVE=false ;;
+        esac
+    fi
+    case "$UN1CA_QPR2_NATIVE" in
+        true|false) ;;
+        *) ABORT "UN1CA_QPR2_NATIVE must be true or false"; return 1 ;;
+    esac
+    if [ "$UN1CA_QPR2_NATIVE" = true ]; then
+        LOG "- Source firmware ships QPR2 natively, skipping redundant QPR2 backports"
+        UN1CA_QPR2_MAINLINE=false
+        UN1CA_QPR2_SWCODEC=false
+        UN1CA_QPR2_RUNTIME_COHORT=off
+        UN1CA_QPR2_CPU_LEAVES=false
+        UN1CA_QPR2_CAMERA_METADATA=false
+        UN1CA_QPR2_CAMERA_PATH=false
+        UN1CA_QPR2_SUBJECT_CPU_PREVIEW=false
+    fi
     if [ "$UN1CA_QPR2_CAMERA_METADATA" != "$UN1CA_QPR2_CAMERA_PATH" ]; then
         ABORT "Enable or disable QPR2 camera metadata and Path conversion together"
         return 1
@@ -63,6 +86,21 @@ if [ ! "$(GET_PROP "system" "ro.unica.codename")" ]; then
     SET_PROP "system" "ro.unica.codename" "${ROM_CODENAME^}"
     unset ROM_CODENAME
 fi
+
+# Backports whose content is already present in a QPR2-native source firmware.
+QPR2_NATIVE_SKIP()
+{
+    [ "${UN1CA_QPR2_NATIVE:-false}" = true ] || return 1
+    case "$1" in
+        insets_lifecycle|signed_package|collections|collections_numeric|dimensions|app_identity| \
+        downloads|dream_vsync|print_accessibility|camera_extensions|companion|diagnostics| \
+        storage_paths|webcam|webcam_native|subject_preview_settings|camera_controls)
+            LOG "- Skipping QPR2 $1: already native in the source firmware"
+            return 0
+            ;;
+    esac
+    return 1
+}
 
 PARADIGM_VERIFY_RUNTIME()
 (
@@ -169,10 +207,14 @@ if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
     PARADIGM_MODPATH="$MODPATH"
 
     # Public QPR2 API and actual observer lifecycle used by current apps.
-    APPLY_PATCH "system" "system/framework/framework.jar" \
-        "$PARADIGM_MODPATH/qpr2/insets_lifecycle/framework.jar/0001-Port-QPR2-window-insets-animation-observers.patch"
-    APPLY_PATCH "system" "system/framework/framework.jar" \
-        "$PARADIGM_MODPATH/qpr2/signed_package/framework.jar/0001-Port-QPR2-SignedPackage-certificate-history.patch"
+    if ! QPR2_NATIVE_SKIP insets_lifecycle; then
+        APPLY_PATCH "system" "system/framework/framework.jar" \
+            "$PARADIGM_MODPATH/qpr2/insets_lifecycle/framework.jar/0001-Port-QPR2-window-insets-animation-observers.patch"
+        fi
+    if ! QPR2_NATIVE_SKIP signed_package; then
+        APPLY_PATCH "system" "system/framework/framework.jar" \
+            "$PARADIGM_MODPATH/qpr2/signed_package/framework.jar/0001-Port-QPR2-SignedPackage-certificate-history.patch"
+        fi
 
     # QPR2 mainline
     MODPATH="$PARADIGM_MODPATH/qpr2/mainline"
@@ -361,7 +403,7 @@ if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
     MODPATH="$PARADIGM_MODPATH/qpr2/camera_extensions"
     LOG_STEP_IN "- Adding QPR2 camera_extensions"
     # Exact One UI 9 backports. The SDK-36 source remains unchanged.
-    if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
+    if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ] && ! QPR2_NATIVE_SKIP camera_extensions; then
         APPLY_PATCH "system" "system/app/CameraExtensionsProxy/CameraExtensionsProxy.apk" \
             "$MODPATH/patches/CameraExtensionsProxy.apk/0001-Handle-unavailable-QPR2-subject-segmentation-contract.patch"
         APPLY_PATCH "system" "system/app/CameraExtensionsProxy/CameraExtensionsProxy.apk" \
@@ -373,7 +415,7 @@ if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
     MODPATH="$PARADIGM_MODPATH/qpr2/companion"
     LOG_STEP_IN "- Adding QPR2 companion"
     # Keep the original SDK-36 / One UI 8 build unchanged.
-    if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
+    if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ] && ! QPR2_NATIVE_SKIP companion; then
         APPLY_PATCH "system" "system/app/CompanionDeviceManager/CompanionDeviceManager.apk" \
             "$MODPATH/patches/CompanionDeviceManager.apk/0001-Reject-obscured-consent-touches.patch"
         APPLY_PATCH "system" "system/app/CompanionDeviceManager/CompanionDeviceManager.apk" \
@@ -387,7 +429,7 @@ if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
     MODPATH="$PARADIGM_MODPATH/qpr2/diagnostics"
     LOG_STEP_IN "- Adding QPR2 diagnostics"
     # Keep the original SDK-36 / One UI 8 build unchanged.
-    if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
+    if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ] && ! QPR2_NATIVE_SKIP diagnostics; then
         APPLY_PATCH "system" "system/priv-app/DeviceDiagnostics/DeviceDiagnostics.apk" \
             "$MODPATH/patches/DeviceDiagnostics.apk/0001-Retain-permission-state-across-activity-recreation.patch"
         APPLY_PATCH "system" "system/priv-app/DeviceDiagnostics/DeviceDiagnostics.apk" \
@@ -399,7 +441,7 @@ if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
     MODPATH="$PARADIGM_MODPATH/qpr2/collections"
     LOG_STEP_IN "- Adding QPR2 collections"
     # QPR2's additional collection APIs use the retained Samsung implementations.
-    if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
+    if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ] && ! QPR2_NATIVE_SKIP collections; then
         DECODE_APK "system" "system/framework/framework.jar"
         perl - collections "$APKTOOL_DIR/system/framework/framework.jar" "$MODPATH/SOURCES.json" <<'PERL'
 use strict;
@@ -454,7 +496,7 @@ PERL
     MODPATH="$PARADIGM_MODPATH/qpr2/collections_numeric"
     LOG_STEP_IN "- Adding QPR2 collections_numeric"
     # These QPR2 numeric variants use the preceding SparseLongArray compute API.
-    if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
+    if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ] && ! QPR2_NATIVE_SKIP collections_numeric; then
         DECODE_APK "system" "system/framework/framework.jar"
         perl - collections_numeric "$APKTOOL_DIR/system/framework/framework.jar" "$MODPATH/SOURCES.json" <<'PERL'
 use strict;
@@ -509,7 +551,7 @@ PERL
     MODPATH="$PARADIGM_MODPATH/qpr2/dimensions"
     LOG_STEP_IN "- Adding QPR2 dimensions"
     # Preserve Samsung's TypedValue and add QPR2's bounded rounding fallback.
-    if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
+    if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ] && ! QPR2_NATIVE_SKIP dimensions; then
         DECODE_APK "system" "system/framework/framework.jar"
         perl - dimensions "$APKTOOL_DIR/system/framework/framework.jar" "$MODPATH/SOURCES.json" <<'PERL'
 use strict;
@@ -564,7 +606,7 @@ PERL
     MODPATH="$PARADIGM_MODPATH/qpr2/app_identity"
     LOG_STEP_IN "- Adding QPR2 app_identity"
     # Keep Samsung Process/Signature implementations; add only QPR2 helpers.
-    if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
+    if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ] && ! QPR2_NATIVE_SKIP app_identity; then
         DECODE_APK "system" "system/framework/framework.jar"
         perl - app_identity "$APKTOOL_DIR/system/framework/framework.jar" "$MODPATH/SOURCES.json" <<'PERL'
 use strict;
@@ -619,7 +661,7 @@ PERL
     MODPATH="$PARADIGM_MODPATH/qpr2/downloads"
     LOG_STEP_IN "- Adding QPR2 downloads"
     # Keep the original SDK-36 / One UI 8 build unchanged.
-    if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
+    if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ] && ! QPR2_NATIVE_SKIP downloads; then
         # android.media also contains five unmodified Samsung-signed packages.
         # Rebuilding just DownloadsProvider with our platform key breaks that UID
         # during PackageManager bootstrap. Keep its genuine media certificate;
@@ -632,7 +674,7 @@ PERL
     MODPATH="$PARADIGM_MODPATH/qpr2/dream_vsync"
     LOG_STEP_IN "- Adding QPR2 dream_vsync"
     # Original SDK-36 builds remain unchanged. Exact One UI 9 contracts only.
-    if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
+    if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ] && ! QPR2_NATIVE_SKIP dream_vsync; then
         # Keep the original signed APK. Scope the scheduling change to its
         # exact callback/package instead of rebuilding it with another signer.
         DECODE_APK "system" "system/framework/framework.jar" || return 1
@@ -656,7 +698,7 @@ PERL
     MODPATH="$PARADIGM_MODPATH/qpr2/print_accessibility"
     LOG_STEP_IN "- Adding QPR2 print_accessibility"
     # Keep the original SDK-36 / One UI 8 build unchanged.
-    if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
+    if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ] && ! QPR2_NATIVE_SKIP print_accessibility; then
         # Keep the original signed APK/data. The framework adds only this exact
         # preview class's localized selected/not-selected state description.
         DECODE_APK "system" "system/framework/framework.jar" || return 1
@@ -706,7 +748,7 @@ PERL
     MODPATH="$PARADIGM_MODPATH/qpr2/storage_paths"
     LOG_STEP_IN "- Adding QPR2 storage_paths"
     # Original SDK-36 builds remain unchanged. Exact One UI 9 contracts only.
-    if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
+    if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ] && ! QPR2_NATIVE_SKIP storage_paths; then
         APPLY_PATCH "system" "system/priv-app/ExternalStorageProvider/ExternalStorageProvider.apk" \
             "$MODPATH/patches/ExternalStorageProvider.apk/0001-Protect-QPR2-private-storage-paths.patch"
         APPLY_PATCH "system" "system/priv-app/ExternalStorageProvider/ExternalStorageProvider.apk" \
@@ -755,7 +797,7 @@ PERL
     MODPATH="$PARADIGM_MODPATH/qpr2/webcam"
     LOG_STEP_IN "- Adding QPR2 webcam"
     # Original SDK-36 builds remain unchanged. Exact One UI 9 contracts only.
-    if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
+    if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ] && ! QPR2_NATIVE_SKIP webcam; then
         APPLY_PATCH "system" "system/priv-app/DeviceAsWebcam/DeviceAsWebcam.apk" \
             "$MODPATH/patches/DeviceAsWebcam.apk/0001-Port-QPR2-responsive-camera-zoom-controls.patch"
         APPLY_PATCH "system" "system/priv-app/DeviceAsWebcam/DeviceAsWebcam.apk" \
@@ -773,7 +815,7 @@ PERL
     MODPATH="$PARADIGM_MODPATH/qpr2/webcam_native"
     LOG_STEP_IN "- Adding QPR2 webcam_native"
     # Keep all system/vendor graphics providers and the original SDK-36 build intact.
-    if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
+    if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ] && ! QPR2_NATIVE_SKIP webcam_native; then
         QPR2_SOURCE_FW="$(cut -d '/' -f 1,2 <<< "$SOURCE_FIRMWARE" | tr '/' '_')"
         QPR2_WEBCAM_LIB="$APKTOOL_DIR/system/priv-app/DeviceAsWebcam/DeviceAsWebcam.apk/lib/arm64-v8a"
         python3 "$MODPATH/verify_sources.py" "$MODPATH" \
@@ -889,7 +931,7 @@ PERL
     # QPR2 subject_preview_settings
     MODPATH="$PARADIGM_MODPATH/qpr2/subject_preview_settings"
     LOG_STEP_IN "- Adding QPR2 subject_preview_settings"
-    if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
+    if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ] && ! QPR2_NATIVE_SKIP subject_preview_settings; then
         APPLY_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
             "$MODPATH/patches/SecSettings.apk/0001-Expose-the-reviewed-CPU-subject-preview-in-Samsung-Labs.patch"
     fi
@@ -954,10 +996,12 @@ PERL
 
     # Source-built Camera surfaces; this child owns its temporary build trap.
     LOG_STEP_IN "- Adding One UI 9.5 camera controls"
-    (
-        MODPATH="$PARADIGM_MODPATH/qpr2/camera_controls"
-        source "$MODPATH/customize.sh"
-    ) || return 1
+    if ! QPR2_NATIVE_SKIP camera_controls; then
+        (
+            MODPATH="$PARADIGM_MODPATH/qpr2/camera_controls"
+            source "$MODPATH/customize.sh"
+        ) || return 1
+    fi
     LOG_STEP_OUT
 
     # QPR2 dialer
