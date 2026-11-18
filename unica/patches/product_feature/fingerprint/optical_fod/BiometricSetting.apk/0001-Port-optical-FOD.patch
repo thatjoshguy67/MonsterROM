@@ -1,7 +1,18 @@
 Subject: [PATCH] Port optical FOD to One UI 9 owners
 
+diff --git a/smali/com/samsung/android/biometrics/app/setting/Utils$Config.smali b/smali/com/samsung/android/biometrics/app/setting/Utils$Config.smali
+--- a/smali/com/samsung/android/biometrics/app/setting/Utils$Config.smali
++++ b/smali/com/samsung/android/biometrics/app/setting/Utils$Config.smali
+@@ -141,7 +141,7 @@
+ 
+     sput-boolean v2, Lcom/samsung/android/biometrics/app/setting/Utils$Config;->FP_FEATURE_SENSOR_IS_IN_DISPLAY_TYPE:Z
+ 
+-    sput-boolean v2, Lcom/samsung/android/biometrics/app/setting/Utils$Config;->FP_FEATURE_SENSOR_IS_ULTRASONIC:Z
++    sput-boolean v3, Lcom/samsung/android/biometrics/app/setting/Utils$Config;->FP_FEATURE_SENSOR_IS_ULTRASONIC:Z
+ 
+     const-string v6, "optical"
+ 
 diff --git a/smali/com/samsung/android/biometrics/app/setting/DisplayStateManager.smali b/smali/com/samsung/android/biometrics/app/setting/DisplayStateManager.smali
-index 967440fae2d293ccaf46f4b1f31edb2a4d34c7e9..430c5b1b94fc1c3897df94937350a556e674d1d5 100644
 --- a/smali/com/samsung/android/biometrics/app/setting/DisplayStateManager.smali
 +++ b/smali/com/samsung/android/biometrics/app/setting/DisplayStateManager.smali
 @@ -259,7 +259,7 @@
@@ -13,19 +24,3 @@ index 967440fae2d293ccaf46f4b1f31edb2a4d34c7e9..430c5b1b94fc1c3897df94937350a556
  
      invoke-virtual {p1, v2}, Ljava/lang/String;->split(Ljava/lang/String;)[Ljava/lang/String;
  
-diff --git a/smali/com/samsung/android/biometrics/app/setting/Utils$Config.smali b/smali/com/samsung/android/biometrics/app/setting/Utils$Config.smali
-index b775644463cd31acec7052cdd9643c7203cf7ae5..8cf0a2b9daa9c71f2cf9652a97a1abcd4e2e2690 100644
---- a/smali/com/samsung/android/biometrics/app/setting/Utils$Config.smali
-+++ b/smali/com/samsung/android/biometrics/app/setting/Utils$Config.smali
-@@ -139,7 +139,7 @@
- 
-     sput-boolean v3, Lcom/samsung/android/biometrics/app/setting/Utils$Config;->FP_FEATURE_SENSOR_IS_IN_DISPLAY_TYPE:Z
- 
--    sput-boolean v3, Lcom/samsung/android/biometrics/app/setting/Utils$Config;->FP_FEATURE_SENSOR_IS_ULTRASONIC:Z
-+    sput-boolean v2, Lcom/samsung/android/biometrics/app/setting/Utils$Config;->FP_FEATURE_SENSOR_IS_ULTRASONIC:Z
- 
-     const-string v6, "optical"
- 
--- 
-2.43.0
-
