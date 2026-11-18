@@ -7,7 +7,8 @@
 # QPR2 functionality is backported by mods/paradigm; this is not a 37.2 GSI.
 # samloader accepts the public model TAC; keep a unique device ID out of Git.
 # An authorized local identifier can be supplied without editing this file.
-SOURCE_FIRMWARE="SM-S942B/INS/${UNICA_SOURCE_FIRMWARE_ID:-35169053}"
+# Opt-in local donor override (e.g. UNICA_SOURCE_FIRMWARE="SM-S948B/INS/<id>").
+SOURCE_FIRMWARE="${UNICA_SOURCE_FIRMWARE:-SM-S942B/INS/${UNICA_SOURCE_FIRMWARE_ID:-35169053}}"
 # Native ARM32 providers for the Exynos 2100 vendor; Android apps remain ARM64-only.
 SOURCE_EXTRA_FIRMWARES=("SM-G990E/THL/355798871234563")
 SOURCE_PLATFORM_SDK_VERSION=37
@@ -29,7 +30,8 @@ SOURCE_CAMERA_SUPPORT_CUTOUT_PROTECTION=false
 SOURCE_CAMERA_SUPPORT_MASS_APP_FLAVOR=false
 SOURCE_CAMERA_SUPPORT_SDK_SERVICE=true
 SOURCE_COMMON_CONFIG_MDNIE_MODE="65303"
-SOURCE_COMMON_SUPPORT_DYN_RESOLUTION_CONTROL=false
+# S942B has no resolution switch; donors that ship one (S948B) set this to true.
+SOURCE_COMMON_SUPPORT_DYN_RESOLUTION_CONTROL="${UNICA_SOURCE_DYN_RESOLUTION_CONTROL:-false}"
 SOURCE_COMMON_SUPPORT_EMBEDDED_SIM=true
 SOURCE_COMMON_SUPPORT_HDR_EFFECT=true
 SOURCE_DVFSAPP_CONFIG_DVFS_POLICY_FILENAME="dvfs_policy_default"
