@@ -79,13 +79,17 @@ PERL
 "${BASH_SOURCE[0]%/*}/../../../scripts/run_xml_perl.sh" --check || return 1
 DECODE_APK "system" "system/priv-app/SecSetupWizard_Global/SecSetupWizard_Global.apk"
 LOG "- Enabling navigation bar type settings step"
-SMALI_PATCH "system" "system/priv-app/SecSetupWizard_Global/SecSetupWizard_Global.apk" \
-    "smali/e7/f.smali" "replace" \
-    "d(Landroid/content/Context;Z)Ljava/util/ArrayList;" \
-    "navigationbar_setting" "this_string_does_not_exist" > /dev/null
-SMALI_PATCH "system" "system/priv-app/SecSetupWizard_Global/SecSetupWizard_Global.apk" \
-    "smali/com/sec/android/app/SecSetupWizard/SecSetupWizardActivity.smali" "replace" \
-    'e(Ljava/lang/String;)Z' "navigationbar_setting" "this_string_does_not_exist" > /dev/null
+# One UI 9.5 Setup Wizard no longer filters a navigationbar_setting step.
+if [ -f "$APKTOOL_DIR/system/priv-app/SecSetupWizard_Global/SecSetupWizard_Global.apk/smali/e7/f.smali" ] && \
+        grep -q '"navigationbar_setting"' "$APKTOOL_DIR/system/priv-app/SecSetupWizard_Global/SecSetupWizard_Global.apk/smali/e7/f.smali"; then
+    SMALI_PATCH "system" "system/priv-app/SecSetupWizard_Global/SecSetupWizard_Global.apk" \
+        "smali/e7/f.smali" "replace" \
+        "d(Landroid/content/Context;Z)Ljava/util/ArrayList;" \
+        "navigationbar_setting" "this_string_does_not_exist" > /dev/null
+    SMALI_PATCH "system" "system/priv-app/SecSetupWizard_Global/SecSetupWizard_Global.apk" \
+        "smali/com/sec/android/app/SecSetupWizard/SecSetupWizardActivity.smali" "replace" \
+        'e(Ljava/lang/String;)Z' "navigationbar_setting" "this_string_does_not_exist" > /dev/null
+fi
 LOG "- Disabling Recommended apps step"
 SETUP_RESOURCES "$APKTOOL_DIR/system/priv-app/SecSetupWizard_Global/SecSetupWizard_Global.apk" \
     "$MODPATH/SecSetupWizard_Global.apk" || return 1

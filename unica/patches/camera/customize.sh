@@ -167,8 +167,14 @@ if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ] && [ "$CAMERA_APP_COHORT" = "source
         "$WORK_DIR/system/system/cameradata/camera-feature.xml" || return 1
     APPLY_PATCH "system" "system/priv-app/SamsungCamera/SamsungCamera.apk" \
         "$MODPATH/SamsungCamera.apk/0001-Recheck-processor-state-after-timed-wait.patch"
-    APPLY_PATCH "system" "system/priv-app/SamsungCamera/SamsungCamera.apk" \
-        "$MODPATH/SamsungCamera.apk/0002-Accept-One-UI-9.5-with-the-camera-contract.patch"
+    # One UI 9.5 Camera builds already define OneUiVersion.V9_5 natively.
+    if find "$APKTOOL_DIR/system/priv-app/SamsungCamera/SamsungCamera.apk" -path "*/smali*" \
+            -name 'SemWrapper$OneUiVersion.smali' -exec grep -q "enum V9_5:" {} + 2> /dev/null; then
+        LOG "- Camera already accepts One UI 9.5, skipping the 9.0 compatibility patch"
+    else
+        APPLY_PATCH "system" "system/priv-app/SamsungCamera/SamsungCamera.apk" \
+            "$MODPATH/SamsungCamera.apk/0002-Accept-One-UI-9.5-with-the-camera-contract.patch"
+    fi
 fi
 
 # Samsung Camera "hal3_mass-phone-release" app flavor
