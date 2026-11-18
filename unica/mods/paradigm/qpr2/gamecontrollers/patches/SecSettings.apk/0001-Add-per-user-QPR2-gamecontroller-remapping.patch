@@ -1,11 +1,12 @@
 Subject: [PATCH] Expose QPR2 controller remapping through the real permission-enforced InputManager
 
 diff --git a/AndroidManifest.xml b/AndroidManifest.xml
+index 0ff5510b29c5e9bc3d1dc22f4aae262edccb0c92..58b0ab46488d33ab1012090318d9600164623215 100644
 --- a/AndroidManifest.xml
 +++ b/AndroidManifest.xml
-@@ -7,6 +7,7 @@
-     <permission android:name="com.samsung.android.settings.share.permission.SHARE_OPTION" android:protectionLevel="signatureOrSystem"/>
+@@ -8,6 +8,7 @@
      <uses-permission android:name="com.samsung.android.app.aodservice.permission.UPDATE_SHORTCUT"/>
+     <uses-permission android:name="com.samsung.android.unifiedwfc.VOWIFI_PROVISIONING_PERMISSION"/>
      <uses-permission android:name="android.permission.RECORD_AUDIO"/>
 +    <uses-permission android:name="android.permission.CONTROLLER_REMAPPING"/>
      <uses-permission android:name="com.samsung.android.sharelive.permission.REQUEST_CANCEL_PROTOCOL_X"/>
@@ -13,6 +14,7 @@ diff --git a/AndroidManifest.xml b/AndroidManifest.xml
      <uses-permission android:name="android.permission.WRITE_MEDIA_STORAGE"/>
 diff --git a/res/values-nl/unica_qpr2_controllers.xml b/res/values-nl/unica_qpr2_controllers.xml
 new file mode 100644
+index 0000000000000000000000000000000000000000..3afe2c82797e609414e171a3cf2e80eec603c2b9
 --- /dev/null
 +++ b/res/values-nl/unica_qpr2_controllers.xml
 @@ -0,0 +1,19 @@
@@ -37,6 +39,7 @@ new file mode 100644
 +</resources>
 diff --git a/res/values/unica_qpr2_controllers.xml b/res/values/unica_qpr2_controllers.xml
 new file mode 100644
+index 0000000000000000000000000000000000000000..69983ee20ab73e52ef693d2851719cfb0aa9e9fe
 --- /dev/null
 +++ b/res/values/unica_qpr2_controllers.xml
 @@ -0,0 +1,19 @@
@@ -60,16 +63,17 @@ new file mode 100644
 +    <string name="unica_controller_failed">The change could not be completed. Check this controller’s mappings before trying again.</string>
 +</resources>
 diff --git a/res/xml/sec_useful_feature_labs.xml b/res/xml/sec_useful_feature_labs.xml
+index 514a2812a49ab043952444c33ef4c428eb3bf434..32c84cd62fcc7d4fa566ae1b2fcc9fb18a98254b 100644
 --- a/res/xml/sec_useful_feature_labs.xml
 +++ b/res/xml/sec_useful_feature_labs.xml
-@@ -17,4 +17,5 @@
-     <Preference android:title="@string/unica_subject_preview_title" android:key="unica_subject_preview" android:summary="@string/unica_subject_preview_summary" settings:controller="io.mesalabs.unica.camera.Qpr2SubjectPreviewPreferenceController">
-         <intent android:targetPackage="com.android.cameraextensions" android:targetClass="io.mesalabs.unica.camera.SubjectPreviewActivity" />
-     </Preference>
-+    <Preference android:title="@string/unica_controller_title" android:key="unica_gamecontrollers" android:summary="@string/unica_controller_summary" settings:controller="io.mesalabs.unica.settings.Qpr2GameControllerPreferenceController" />
+@@ -12,3 +12,4 @@
+     <SecPreference android:title="@string/sec_labs_dark_mode_apps_title" android:key="dark_mode_apps" android:order="210000" android:fragment="com.samsung.android.settings.usefulfeature.labs.darkmodeapps.DarkModeAppsSettings" settings:controller="com.samsung.android.settings.usefulfeature.labs.darkmodeapps.DarkModeAppsPreferenceController" />
+     <SecPreferenceScreen android:title="@string/sec_labs_mic_switch_for_apps" android:key="mic_switch_settings" android:summary="@string/sec_labs_mic_switch_for_apps_summary" android:order="220000" settings:controller="com.samsung.android.settings.usefulfeature.labs.micswitch.MicSwitchPreferenceController" />
  </PreferenceScreen>
++    <Preference android:title="@string/unica_controller_title" android:key="unica_gamecontrollers" android:summary="@string/unica_controller_summary" settings:controller="io.mesalabs.unica.settings.Qpr2GameControllerPreferenceController" />
 diff --git a/smali_classes4/io/mesalabs/unica/settings/ControllerMappingSession.smali b/smali_classes4/io/mesalabs/unica/settings/ControllerMappingSession.smali
 new file mode 100644
+index 0000000000000000000000000000000000000000..6b1a43733b43f1523eda3cf968ba1893a8d71786
 --- /dev/null
 +++ b/smali_classes4/io/mesalabs/unica/settings/ControllerMappingSession.smali
 @@ -0,0 +1,180 @@
@@ -255,6 +259,7 @@ new file mode 100644
 +.end method
 diff --git a/smali_classes4/io/mesalabs/unica/settings/Qpr2GameControllerPreferenceController$1.smali b/smali_classes4/io/mesalabs/unica/settings/Qpr2GameControllerPreferenceController$1.smali
 new file mode 100644
+index 0000000000000000000000000000000000000000..31e9eaadf18d3ff09d5ee6c53af8c2e8d21bb737
 --- /dev/null
 +++ b/smali_classes4/io/mesalabs/unica/settings/Qpr2GameControllerPreferenceController$1.smali
 @@ -0,0 +1,83 @@
@@ -343,6 +348,7 @@ new file mode 100644
 +.end method
 diff --git a/smali_classes4/io/mesalabs/unica/settings/Qpr2GameControllerPreferenceController$2.smali b/smali_classes4/io/mesalabs/unica/settings/Qpr2GameControllerPreferenceController$2.smali
 new file mode 100644
+index 0000000000000000000000000000000000000000..6d8849dbfb8d3529bde5ecdbb473828e2e2491d6
 --- /dev/null
 +++ b/smali_classes4/io/mesalabs/unica/settings/Qpr2GameControllerPreferenceController$2.smali
 @@ -0,0 +1,93 @@
@@ -441,6 +447,7 @@ new file mode 100644
 +.end method
 diff --git a/smali_classes4/io/mesalabs/unica/settings/Qpr2GameControllerPreferenceController$3.smali b/smali_classes4/io/mesalabs/unica/settings/Qpr2GameControllerPreferenceController$3.smali
 new file mode 100644
+index 0000000000000000000000000000000000000000..e504543e535718970a9bdb35e7e56397a0a83963
 --- /dev/null
 +++ b/smali_classes4/io/mesalabs/unica/settings/Qpr2GameControllerPreferenceController$3.smali
 @@ -0,0 +1,107 @@
@@ -553,6 +560,7 @@ new file mode 100644
 +.end method
 diff --git a/smali_classes4/io/mesalabs/unica/settings/Qpr2GameControllerPreferenceController$4.smali b/smali_classes4/io/mesalabs/unica/settings/Qpr2GameControllerPreferenceController$4.smali
 new file mode 100644
+index 0000000000000000000000000000000000000000..fecff037fc38b0453d99f1b8df3ab75e10de09da
 --- /dev/null
 +++ b/smali_classes4/io/mesalabs/unica/settings/Qpr2GameControllerPreferenceController$4.smali
 @@ -0,0 +1,133 @@
@@ -691,6 +699,7 @@ new file mode 100644
 +.end method
 diff --git a/smali_classes4/io/mesalabs/unica/settings/Qpr2GameControllerPreferenceController$5.smali b/smali_classes4/io/mesalabs/unica/settings/Qpr2GameControllerPreferenceController$5.smali
 new file mode 100644
+index 0000000000000000000000000000000000000000..ad4ab0dd065055f7bd489f6a96afb05daed711df
 --- /dev/null
 +++ b/smali_classes4/io/mesalabs/unica/settings/Qpr2GameControllerPreferenceController$5.smali
 @@ -0,0 +1,160 @@
@@ -856,6 +865,7 @@ new file mode 100644
 +.end method
 diff --git a/smali_classes4/io/mesalabs/unica/settings/Qpr2GameControllerPreferenceController.smali b/smali_classes4/io/mesalabs/unica/settings/Qpr2GameControllerPreferenceController.smali
 new file mode 100644
+index 0000000000000000000000000000000000000000..9ae0090d2bbac7c8c0a8de41188f8f14dfeaae38
 --- /dev/null
 +++ b/smali_classes4/io/mesalabs/unica/settings/Qpr2GameControllerPreferenceController.smali
 @@ -0,0 +1,1850 @@
@@ -2709,3 +2719,6 @@ new file mode 100644
 +
 +    return-void
 +.end method
+-- 
+2.43.0
+

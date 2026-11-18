@@ -1,16 +1,20 @@
 Subject: [PATCH] Identify the reviewed Phone backport
 
 diff --git a/apktool.yml b/apktool.yml
+index e6940b4081b2f579dc1056d1c883d6237154e8b4..c9cb360065426fae9891018ab3f47a584d59a02f 100644
 --- a/apktool.yml
 +++ b/apktool.yml
-@@ -8,8 +8,8 @@
+@@ -8,8 +8,8 @@ sdkInfo:
    minSdkVersion: 35
    targetSdkVersion: 37
  versionInfo:
--  versionCode: 1635059000
--  versionName: 16.3.50.59
-+  versionCode: 1635059002
-+  versionName: 16.3.50.59-UN1CA.QPR2.r17
+-  versionCode: 1640042000
+-  versionName: 16.4.00.42
++  versionCode: 1640042002
++  versionName: 16.4.00.42-UN1CA.QPR2.r17
  resourcesInfo:
    packageId: 127
  doNotCompress:
+-- 
+2.43.0
+

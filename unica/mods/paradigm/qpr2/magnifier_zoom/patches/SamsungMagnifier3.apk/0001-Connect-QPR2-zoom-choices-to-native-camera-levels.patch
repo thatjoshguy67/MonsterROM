@@ -2,6 +2,7 @@ Subject: [PATCH] Connect QPR2 zoom choices to native Magnifier levels with stale
 
 diff --git a/res/values-nl/unica_zoom_choices.xml b/res/values-nl/unica_zoom_choices.xml
 new file mode 100644
+index 0000000000000000000000000000000000000000..ab3b057d770d581dccc88e40e4ca20fc72ebbb6a
 --- /dev/null
 +++ b/res/values-nl/unica_zoom_choices.xml
 @@ -0,0 +1,7 @@
@@ -13,20 +14,24 @@ new file mode 100644
 +    <string name="unica_zoom_choices_max">Maximale zoom</string>
 +</resources>
 diff --git a/res/values/public.xml b/res/values/public.xml
+index 94f8b514beec407e96557588195b26ffcf1d360d..b839148000badb178e3badb70ef6483e05dc69ee 100644
 --- a/res/values/public.xml
 +++ b/res/values/public.xml
-@@ -8862,4 +8862,9 @@
-     <public type="color" name="unica_glass_surface_top" id="0x7f050724" />
-     <public type="color" name="unica_glass_surface_bottom" id="0x7f050725" />
-     <public type="color" name="unica_glass_rim" id="0x7f050726" />
+@@ -8862,6 +8862,11 @@
+     <public type="style" name="Widget.Material3.FloatingActionButton.Surface" id="0x7f140623" />
+     <public type="style" name="Widget.Material3.FloatingActionButton.Tertiary" id="0x7f140624" />
+     <public type="style" name="Widget.Material3.FloatingToolbar" id="0x7f140625" />
 +    <public type="id" name="unica_zoom_choices_state" id="0x7f09059e" />
 +    <public type="string" name="unica_zoom_choices_hint" id="0x7f120161" />
 +    <public type="string" name="unica_zoom_choices_min" id="0x7f120162" />
 +    <public type="string" name="unica_zoom_choices_middle" id="0x7f120163" />
 +    <public type="string" name="unica_zoom_choices_max" id="0x7f120164" />
- </resources>
+     <public type="style" name="Widget.Material3.FloatingToolbar.Button" id="0x7f140626" />
+     <public type="style" name="Widget.Material3.FloatingToolbar.Button.Vibrant" id="0x7f140627" />
+     <public type="style" name="Widget.Material3.FloatingToolbar.IconButton" id="0x7f140628" />
 diff --git a/res/values/unica_zoom_choices.xml b/res/values/unica_zoom_choices.xml
 new file mode 100644
+index 0000000000000000000000000000000000000000..8f8133a55cd5a79f0a268af987eb181c9720503e
 --- /dev/null
 +++ b/res/values/unica_zoom_choices.xml
 @@ -0,0 +1,8 @@
@@ -39,31 +44,34 @@ new file mode 100644
 +    <string name="unica_zoom_choices_max">Maximum zoom</string>
 +</resources>
 diff --git a/smali/com/sec/android/app/magnifier/Magnifier.smali b/smali/com/sec/android/app/magnifier/Magnifier.smali
+index b7ff474ebbf4e5a143e9f49596f350815cf98e72..bf9a77d1494a6ef22d8c99688cbfc9dc4de890d4 100644
 --- a/smali/com/sec/android/app/magnifier/Magnifier.smali
 +++ b/smali/com/sec/android/app/magnifier/Magnifier.smali
 @@ -884,6 +884,8 @@
- .method public final onPause()V
-     .locals 6
+     iget-object v2, v7, Lb8/b;->d:Ljava/lang/String;
  
+     invoke-virtual {v6, v2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 +    invoke-static/range {p0 .. p0}, Lio/mesalabs/unica/magnifier/Qpr2ZoomChoices;->dismissFor(Landroid/app/Activity;)V
 +
-     sget-object v0, Ln7/a;->a:Lx4/d;
  
-     sget-object v0, Ln7/a;->a:Lx4/d;
+     move-result v2
+ 
 diff --git a/smali/com/sec/android/app/magnifier/view/previewmode/PreviewModeView.smali b/smali/com/sec/android/app/magnifier/view/previewmode/PreviewModeView.smali
+index 529d06fac55010010c0bd7e6136adce172fcec61..797762542afe5c573b26198b95072681eb9d9f69 100644
 --- a/smali/com/sec/android/app/magnifier/view/previewmode/PreviewModeView.smali
 +++ b/smali/com/sec/android/app/magnifier/view/previewmode/PreviewModeView.smali
 @@ -675,6 +675,8 @@
+     if-eqz v7, :cond_a
  
-     invoke-virtual {p1, p2, v0, v1}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
- 
+     iget-object v7, v7, Lc7/d0;->B:Landroid/widget/ImageView;
 +    invoke-static/range {p0 .. p0}, Lio/mesalabs/unica/magnifier/Qpr2ZoomChoices;->install(Lcom/sec/android/app/magnifier/view/previewmode/PreviewModeView;)V
 +
-     sget-boolean p1, Ld8/a;->c:Z
  
-     if-eqz p1, :cond_5
+     const-string v8, "conMinusPort"
+ 
 diff --git a/smali_classes2/io/mesalabs/unica/magnifier/Qpr2ZoomChoices$1.smali b/smali_classes2/io/mesalabs/unica/magnifier/Qpr2ZoomChoices$1.smali
 new file mode 100644
+index 0000000000000000000000000000000000000000..8c69fb19c3da6ae544ad950c106c53d34d8e717f
 --- /dev/null
 +++ b/smali_classes2/io/mesalabs/unica/magnifier/Qpr2ZoomChoices$1.smali
 @@ -0,0 +1,134 @@
@@ -203,6 +211,7 @@ new file mode 100644
 +.end method
 diff --git a/smali_classes2/io/mesalabs/unica/magnifier/Qpr2ZoomChoices$2.smali b/smali_classes2/io/mesalabs/unica/magnifier/Qpr2ZoomChoices$2.smali
 new file mode 100644
+index 0000000000000000000000000000000000000000..81c934e8bd7a7e6598b4dd837d0dd13d6ac08180
 --- /dev/null
 +++ b/smali_classes2/io/mesalabs/unica/magnifier/Qpr2ZoomChoices$2.smali
 @@ -0,0 +1,71 @@
@@ -279,6 +288,7 @@ new file mode 100644
 +.end method
 diff --git a/smali_classes2/io/mesalabs/unica/magnifier/Qpr2ZoomChoices.smali b/smali_classes2/io/mesalabs/unica/magnifier/Qpr2ZoomChoices.smali
 new file mode 100644
+index 0000000000000000000000000000000000000000..987b235bb7f22938070c95ed6dffed289ca94112
 --- /dev/null
 +++ b/smali_classes2/io/mesalabs/unica/magnifier/Qpr2ZoomChoices.smali
 @@ -0,0 +1,571 @@
@@ -853,3 +863,6 @@ new file mode 100644
 +
 +    return-void
 +.end method
+-- 
+2.43.0
+

@@ -2,6 +2,7 @@ Subject: [PATCH] Add the shared native backdrop material to the owned Sound Pick
 
 diff --git a/res/drawable/unica_glass_capsule.xml b/res/drawable/unica_glass_capsule.xml
 new file mode 100644
+index 0000000000000000000000000000000000000000..deed3b72863f22be11242fe7622644b620c085ed
 --- /dev/null
 +++ b/res/drawable/unica_glass_capsule.xml
 @@ -0,0 +1,2 @@
@@ -9,15 +10,17 @@ new file mode 100644
 +<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle"><corners android:radius="999dp" /><gradient android:angle="270" android:startColor="@color/unica_glass_surface_top" android:endColor="@color/unica_glass_surface_bottom" /></shape>
 diff --git a/res/drawable/unica_glass_rim.xml b/res/drawable/unica_glass_rim.xml
 new file mode 100644
+index 0000000000000000000000000000000000000000..eaf7a9e40069a8048be4156b15ceb9cc53da3067
 --- /dev/null
 +++ b/res/drawable/unica_glass_rim.xml
 @@ -0,0 +1,2 @@
 +<?xml version="1.0" encoding="utf-8"?>
 +<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle"><corners android:radius="999dp" /><solid android:color="@android:color/transparent" /><stroke android:width="1dp" android:color="@color/unica_glass_rim" /></shape>
 diff --git a/res/layout/sec_soundpicker_container.xml b/res/layout/sec_soundpicker_container.xml
+index eb9237f6725ed8db7e9602052d94fbb84bd7bf94..b096f8506e89a07a5cf93b67505e04a39cbd492c 100644
 --- a/res/layout/sec_soundpicker_container.xml
 +++ b/res/layout/sec_soundpicker_container.xml
-@@ -25,8 +25,8 @@
+@@ -23,9 +23,9 @@
          <androidx.appcompat.widget.Toolbar android:layout_gravity="bottom" android:id="@id/action_bar" android:layout_width="match_parent" android:layout_height="?android:actionBarSize" app:layout_collapseMode="pin" />
      </com.google.android.material.oneui.floatingactioncontainer.FloatingToolbarLayout>
      <com.google.android.material.oneui.floatingactioncontainer.FloatingBottomLayout android:layout_gravity="bottom" android:id="@id/floating_bottom_container" android:paddingBottom="@dimen/floating_bottom_layout_margin_bottom" android:clipChildren="false" android:clipToPadding="false" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginStart="@dimen/floating_bottom_layout_margin_start_end" android:layout_marginEnd="@dimen/floating_bottom_layout_margin_start_end">
@@ -27,21 +30,24 @@ diff --git a/res/layout/sec_soundpicker_container.xml b/res/layout/sec_soundpick
 -        </FrameLayout>
 +        </io.mesalabs.unica.glass.GlassFrameLayout>
      </com.google.android.material.oneui.floatingactioncontainer.FloatingBottomLayout>
- </com.samsung.android.secsoundpicker.widget.SecColoredPaddingView>
+     <FrameLayout android:layout_gravity="center|bottom" android:id="@id/download_delete_bar" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:elevation="@dimen/sesl_floating_toolbar_projection_background_elevation">
+         <FrameLayout android:id="@id/download_delete_inset" android:padding="@dimen/gr_delete_bar_padding" android:layout_width="wrap_content" android:layout_height="wrap_content">
 diff --git a/res/values-night/unica_glass.xml b/res/values-night/unica_glass.xml
 new file mode 100644
+index 0000000000000000000000000000000000000000..49b7de624248aea8cdd864043cba265dbcb44295
 --- /dev/null
 +++ b/res/values-night/unica_glass.xml
 @@ -0,0 +1,2 @@
 +<?xml version="1.0" encoding="utf-8"?>
 +<resources><color name="unica_glass_surface_top">#f2262b34</color><color name="unica_glass_surface_bottom">#f21b2029</color><color name="unica_glass_rim">#b8e5efff</color></resources>
 diff --git a/res/values/public.xml b/res/values/public.xml
+index cf1c0c0ae3eb158ca4e759a0f6e4146e89e8e257..36fddb26e6f84120f480b757955157fbd245f7fc 100644
 --- a/res/values/public.xml
 +++ b/res/values/public.xml
-@@ -6359,4 +6359,25 @@
-     <public type="style" name="seslEyeDropper" id="0x7f110653" />
-     <public type="xml" name="m3_button_group_child_size_change" id="0x7f130000" />
-     <public type="xml" name="meta_080_secsoundpicker" id="0x7f130004" />
+@@ -6359,6 +6359,27 @@
+     <public type="style" name="Theme.MaterialComponents.Dialog.Alert" id="0x7f1203b0" />
+     <public type="style" name="Theme.MaterialComponents.Dialog.Alert.Bridge" id="0x7f1203b1" />
+     <public type="style" name="Theme.MaterialComponents.Dialog.Bridge" id="0x7f1203b2" />
 +    <public type="color" name="unica_glass_surface_top" id="0x7f0506fc" />
 +    <public type="color" name="unica_glass_surface_bottom" id="0x7f0506fd" />
 +    <public type="color" name="unica_glass_rim" id="0x7f0506fe" />
@@ -63,9 +69,12 @@ diff --git a/res/values/public.xml b/res/values/public.xml
 +    <public type="drawable" name="unica_inline_gap_7f070033" id="0x7f070033" />
 +    <public type="drawable" name="unica_inline_gap_7f070034" id="0x7f070034" />
 +    <public type="drawable" name="unica_inline_gap_7f070035" id="0x7f070035" />
- </resources>
+     <public type="style" name="Theme.MaterialComponents.Dialog.FixedSize" id="0x7f1203b3" />
+     <public type="style" name="Theme.MaterialComponents.Dialog.FixedSize.Bridge" id="0x7f1203b4" />
+     <public type="style" name="Theme.MaterialComponents.Dialog.MinWidth" id="0x7f1203b5" />
 diff --git a/res/values/unica_glass.xml b/res/values/unica_glass.xml
 new file mode 100644
+index 0000000000000000000000000000000000000000..ebc236f04bb45bd9fed75e37d8bb122cb597364f
 --- /dev/null
 +++ b/res/values/unica_glass.xml
 @@ -0,0 +1,2 @@
@@ -73,6 +82,7 @@ new file mode 100644
 +<resources><color name="unica_glass_surface_top">#fafbfcff</color><color name="unica_glass_surface_bottom">#f2e6ebf3</color><color name="unica_glass_rim">#9aafbed1</color></resources>
 diff --git a/res/values/unica_inline_gaps.xml b/res/values/unica_inline_gaps.xml
 new file mode 100644
+index 0000000000000000000000000000000000000000..a085a8c56ed27687ad34b2e2f11bc80c7304d18d
 --- /dev/null
 +++ b/res/values/unica_inline_gaps.xml
 @@ -0,0 +1,21 @@
@@ -99,6 +109,7 @@ new file mode 100644
 +</resources>
 diff --git a/smali_classes2/io/mesalabs/unica/glass/GlassBackdrop$1.smali b/smali_classes2/io/mesalabs/unica/glass/GlassBackdrop$1.smali
 new file mode 100644
+index 0000000000000000000000000000000000000000..fee3383f8378fef5a86921820b98cee4a42431ca
 --- /dev/null
 +++ b/smali_classes2/io/mesalabs/unica/glass/GlassBackdrop$1.smali
 @@ -0,0 +1,53 @@
@@ -157,6 +168,7 @@ new file mode 100644
 +.end method
 diff --git a/smali_classes2/io/mesalabs/unica/glass/GlassBackdrop$2.smali b/smali_classes2/io/mesalabs/unica/glass/GlassBackdrop$2.smali
 new file mode 100644
+index 0000000000000000000000000000000000000000..6cdcc67d3705cbb0adc4a9c250756229fcdcf61e
 --- /dev/null
 +++ b/smali_classes2/io/mesalabs/unica/glass/GlassBackdrop$2.smali
 @@ -0,0 +1,51 @@
@@ -213,6 +225,7 @@ new file mode 100644
 +.end method
 diff --git a/smali_classes2/io/mesalabs/unica/glass/GlassBackdrop.smali b/smali_classes2/io/mesalabs/unica/glass/GlassBackdrop.smali
 new file mode 100644
+index 0000000000000000000000000000000000000000..c60916fe98dc1cdab74f987af069b718cea858af
 --- /dev/null
 +++ b/smali_classes2/io/mesalabs/unica/glass/GlassBackdrop.smali
 @@ -0,0 +1,1317 @@
@@ -1535,6 +1548,7 @@ new file mode 100644
 +.end method
 diff --git a/smali_classes2/io/mesalabs/unica/glass/GlassCapsule.smali b/smali_classes2/io/mesalabs/unica/glass/GlassCapsule.smali
 new file mode 100644
+index 0000000000000000000000000000000000000000..ab5e4e1564dc9c5f243b9e512083fe255cf05773
 --- /dev/null
 +++ b/smali_classes2/io/mesalabs/unica/glass/GlassCapsule.smali
 @@ -0,0 +1,1027 @@
@@ -2567,6 +2581,7 @@ new file mode 100644
 +.end method
 diff --git a/smali_classes2/io/mesalabs/unica/glass/GlassFrameLayout.smali b/smali_classes2/io/mesalabs/unica/glass/GlassFrameLayout.smali
 new file mode 100644
+index 0000000000000000000000000000000000000000..384f12aadad08b43761ec0d67fcc5e6ab00cf88a
 --- /dev/null
 +++ b/smali_classes2/io/mesalabs/unica/glass/GlassFrameLayout.smali
 @@ -0,0 +1,81 @@
@@ -2653,6 +2668,7 @@ new file mode 100644
 +.end method
 diff --git a/smali_classes2/io/mesalabs/unica/glass/GlassShader.smali b/smali_classes2/io/mesalabs/unica/glass/GlassShader.smali
 new file mode 100644
+index 0000000000000000000000000000000000000000..3eed5019709289e729ee3d37b2c09dee7d493347
 --- /dev/null
 +++ b/smali_classes2/io/mesalabs/unica/glass/GlassShader.smali
 @@ -0,0 +1,385 @@
@@ -3043,6 +3059,7 @@ new file mode 100644
 +.end method
 diff --git a/smali_classes2/io/mesalabs/unica/glass/NativeGlass$1.smali b/smali_classes2/io/mesalabs/unica/glass/NativeGlass$1.smali
 new file mode 100644
+index 0000000000000000000000000000000000000000..bbd96cc06aa359082c31186686f6454bb924d123
 --- /dev/null
 +++ b/smali_classes2/io/mesalabs/unica/glass/NativeGlass$1.smali
 @@ -0,0 +1,52 @@
@@ -3100,6 +3117,7 @@ new file mode 100644
 +.end method
 diff --git a/smali_classes2/io/mesalabs/unica/glass/NativeGlass$2.smali b/smali_classes2/io/mesalabs/unica/glass/NativeGlass$2.smali
 new file mode 100644
+index 0000000000000000000000000000000000000000..92951271768d1e3be1a9aadcef7d7adb0e65cf52
 --- /dev/null
 +++ b/smali_classes2/io/mesalabs/unica/glass/NativeGlass$2.smali
 @@ -0,0 +1,50 @@
@@ -3155,6 +3173,7 @@ new file mode 100644
 +.end method
 diff --git a/smali_classes2/io/mesalabs/unica/glass/NativeGlass.smali b/smali_classes2/io/mesalabs/unica/glass/NativeGlass.smali
 new file mode 100644
+index 0000000000000000000000000000000000000000..bcb3dd5a374b6aee87aa704a911fd11171834d14
 --- /dev/null
 +++ b/smali_classes2/io/mesalabs/unica/glass/NativeGlass.smali
 @@ -0,0 +1,719 @@
@@ -3877,3 +3896,6 @@ new file mode 100644
 +    :cond_144
 +    return-void
 +.end method
+-- 
+2.43.0
+

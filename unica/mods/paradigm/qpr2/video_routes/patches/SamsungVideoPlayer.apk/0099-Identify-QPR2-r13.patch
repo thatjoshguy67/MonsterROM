@@ -1,16 +1,20 @@
 Subject: [PATCH] Identify the signed QPR2 r13 app candidate
 
 diff --git a/apktool.yml b/apktool.yml
+index e5b7e781ff0135cf8f6a029918fba8b59a491fb4..91e2a98fc6ae81525cd274f59fed9cc928c04083 100644
 --- a/apktool.yml
 +++ b/apktool.yml
-@@ -8,8 +8,8 @@
+@@ -8,8 +8,8 @@ sdkInfo:
    minSdkVersion: 37
    targetSdkVersion: 37
  versionInfo:
--  versionCode: 740010028
--  versionName: 7.4.00.28
-+  versionCode: 740010042
-+  versionName: 7.4.00.28-UN1CA.QPR2.r17
+-  versionCode: 750110025
+-  versionName: 7.5.01.25
++  versionCode: 750110039
++  versionName: 7.5.01.25-UN1CA.QPR2.r17
  resourcesInfo:
    packageId: 127
  doNotCompress:
+-- 
+2.43.0
+

@@ -1,9 +1,10 @@
 Subject: [PATCH] Connect successful native blur surfaces to the QPR2 backdrop material
 
 diff --git a/res/values/public.xml b/res/values/public.xml
+index 7c6b003438e008b0957d75bb993abb2fd353486d..7d7fe33d579870714a5f7a4641e91b05c0383696 100644
 --- a/res/values/public.xml
 +++ b/res/values/public.xml
-@@ -49039,4 +49039,26 @@
+@@ -49039,6 +49039,28 @@
      <public type="xml" name="unica_spoof_settings" id="0x7f180342" />
      <public type="xml" name="unica_top_settings" id="0x7f180343" />
      <public type="xml" name="unica_ui_settings" id="0x7f180344" />
@@ -29,9 +30,12 @@ diff --git a/res/values/public.xml b/res/values/public.xml
 +    <public type="string" name="unica_qpr2_contrast_title" id="0x7f1544e1" />
 +    <public type="string" name="unica_qpr2_diagonal_summary" id="0x7f1544e2" />
 +    <public type="string" name="unica_qpr2_diagonal_title" id="0x7f1544e3" />
- </resources>
+     <public type="style" name="SudBase.ProgressBarLarge" id="0x7f1604f0" />
+     <public type="style" name="SudBaseCardTitle" id="0x7f1604f1" />
+     <public type="style" name="SudBaseHeaderTitle" id="0x7f1604f2" />
 diff --git a/res/values/unica_glass_surface.xml b/res/values/unica_glass_surface.xml
 new file mode 100644
+index 0000000000000000000000000000000000000000..5eb0021cf1ca8299bbd3f822cf2c7db826d5dc07
 --- /dev/null
 +++ b/res/values/unica_glass_surface.xml
 @@ -0,0 +1,4 @@
@@ -40,6 +44,7 @@ new file mode 100644
 +    <item type="id" name="unica_glass_surface" />
 +</resources>
 diff --git a/smali/androidx/appcompat/oneui/common/internal/semblurinfo/SemBlurInfoStateCanvas.smali b/smali/androidx/appcompat/oneui/common/internal/semblurinfo/SemBlurInfoStateCanvas.smali
+index 1ebac7d30f00ea889c27a76beee5f3a10f6e3feb..e0430f778b4d0c3e0593ef080f5a7a1846167175 100644
 --- a/smali/androidx/appcompat/oneui/common/internal/semblurinfo/SemBlurInfoStateCanvas.smali
 +++ b/smali/androidx/appcompat/oneui/common/internal/semblurinfo/SemBlurInfoStateCanvas.smali
 @@ -17,6 +17,8 @@
@@ -51,25 +56,26 @@ diff --git a/smali/androidx/appcompat/oneui/common/internal/semblurinfo/SemBlurI
      invoke-virtual {p1}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
  
      invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
-@@ -72,6 +74,8 @@
-     move-result-object p0
+@@ -73,6 +75,8 @@
  
      invoke-virtual {v1, p0}, Landroid/view/View;->setBackgroundTintList(Landroid/content/res/ColorStateList;)V
-+
-+    invoke-static {v1}, Lio/mesalabs/unica/glass/GlassSurface;->applied(Landroid/view/View;)V
  
++    invoke-static {v1}, Lio/mesalabs/unica/glass/GlassSurface;->applied(Landroid/view/View;)V
++
      return v7
  
-@@ -83,6 +87,8 @@
- 
+     :cond_0
+@@ -84,6 +88,8 @@
  .method public final clearBlurInfo(Landroid/view/View;)V
      .locals 1
-+
-+    invoke-static {p1}, Lio/mesalabs/unica/glass/GlassSurface;->clear(Landroid/view/View;)V
  
++    invoke-static {p1}, Lio/mesalabs/unica/glass/GlassSurface;->clear(Landroid/view/View;)V
++
      invoke-virtual {p1}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
  
+     sget-boolean v0, Landroidx/core/view/SemBlurCompat;->DEBUG_BLUR_COMPAT_BLUR_FORCE_Off:Z
 diff --git a/smali/androidx/appcompat/oneui/common/internal/semblurinfo/SemBlurInfoStateWindow.smali b/smali/androidx/appcompat/oneui/common/internal/semblurinfo/SemBlurInfoStateWindow.smali
+index c023bb8f0f50dc7c01987ab055613bde525739bb..c85d32101659973ae7d096e73298d63f511217f4 100644
 --- a/smali/androidx/appcompat/oneui/common/internal/semblurinfo/SemBlurInfoStateWindow.smali
 +++ b/smali/androidx/appcompat/oneui/common/internal/semblurinfo/SemBlurInfoStateWindow.smali
 @@ -19,6 +19,8 @@
@@ -81,7 +87,7 @@ diff --git a/smali/androidx/appcompat/oneui/common/internal/semblurinfo/SemBlurI
      invoke-virtual {p1}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
  
      invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
-@@ -65,11 +67,18 @@
+@@ -65,12 +67,19 @@
  
      invoke-virtual {v1, p1}, Landroid/view/View;->setClipToOutline(Z)V
  
@@ -95,13 +101,15 @@ diff --git a/smali/androidx/appcompat/oneui/common/internal/semblurinfo/SemBlurI
  
  .method public final clearBlurInfo(Landroid/view/View;)V
      .locals 1
-+
-+    invoke-static {p1}, Lio/mesalabs/unica/glass/GlassSurface;->clear(Landroid/view/View;)V
  
++    invoke-static {p1}, Lio/mesalabs/unica/glass/GlassSurface;->clear(Landroid/view/View;)V
++
      invoke-virtual {p1}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
  
+     sget-boolean v0, Landroidx/core/view/SemBlurCompat;->DEBUG_BLUR_COMPAT_BLUR_FORCE_Off:Z
 diff --git a/smali_classes5/io/mesalabs/unica/glass/GlassBackdrop$1.smali b/smali_classes5/io/mesalabs/unica/glass/GlassBackdrop$1.smali
 new file mode 100644
+index 0000000000000000000000000000000000000000..fee3383f8378fef5a86921820b98cee4a42431ca
 --- /dev/null
 +++ b/smali_classes5/io/mesalabs/unica/glass/GlassBackdrop$1.smali
 @@ -0,0 +1,53 @@
@@ -160,6 +168,7 @@ new file mode 100644
 +.end method
 diff --git a/smali_classes5/io/mesalabs/unica/glass/GlassBackdrop$2.smali b/smali_classes5/io/mesalabs/unica/glass/GlassBackdrop$2.smali
 new file mode 100644
+index 0000000000000000000000000000000000000000..6cdcc67d3705cbb0adc4a9c250756229fcdcf61e
 --- /dev/null
 +++ b/smali_classes5/io/mesalabs/unica/glass/GlassBackdrop$2.smali
 @@ -0,0 +1,51 @@
@@ -216,6 +225,7 @@ new file mode 100644
 +.end method
 diff --git a/smali_classes5/io/mesalabs/unica/glass/GlassBackdrop.smali b/smali_classes5/io/mesalabs/unica/glass/GlassBackdrop.smali
 new file mode 100644
+index 0000000000000000000000000000000000000000..c60916fe98dc1cdab74f987af069b718cea858af
 --- /dev/null
 +++ b/smali_classes5/io/mesalabs/unica/glass/GlassBackdrop.smali
 @@ -0,0 +1,1317 @@
@@ -1538,6 +1548,7 @@ new file mode 100644
 +.end method
 diff --git a/smali_classes5/io/mesalabs/unica/glass/GlassCapsule.smali b/smali_classes5/io/mesalabs/unica/glass/GlassCapsule.smali
 new file mode 100644
+index 0000000000000000000000000000000000000000..ab5e4e1564dc9c5f243b9e512083fe255cf05773
 --- /dev/null
 +++ b/smali_classes5/io/mesalabs/unica/glass/GlassCapsule.smali
 @@ -0,0 +1,1027 @@
@@ -2570,6 +2581,7 @@ new file mode 100644
 +.end method
 diff --git a/smali_classes5/io/mesalabs/unica/glass/GlassShader.smali b/smali_classes5/io/mesalabs/unica/glass/GlassShader.smali
 new file mode 100644
+index 0000000000000000000000000000000000000000..3eed5019709289e729ee3d37b2c09dee7d493347
 --- /dev/null
 +++ b/smali_classes5/io/mesalabs/unica/glass/GlassShader.smali
 @@ -0,0 +1,385 @@
@@ -2960,6 +2972,7 @@ new file mode 100644
 +.end method
 diff --git a/smali_classes5/io/mesalabs/unica/glass/GlassSurface.smali b/smali_classes5/io/mesalabs/unica/glass/GlassSurface.smali
 new file mode 100644
+index 0000000000000000000000000000000000000000..5cc830bbafdabc869f68df9d04f5ae58298169c8
 --- /dev/null
 +++ b/smali_classes5/io/mesalabs/unica/glass/GlassSurface.smali
 @@ -0,0 +1,564 @@
@@ -3527,3 +3540,6 @@ new file mode 100644
 +
 +    return-void
 +.end method
+-- 
+2.43.0
+

@@ -2,6 +2,7 @@ Subject: [PATCH] Integrate QPR2 controlled wheel speed and reverse scrolling in 
 
 diff --git a/res/values-nl/unica_qpr2_wheel.xml b/res/values-nl/unica_qpr2_wheel.xml
 new file mode 100644
+index 0000000000000000000000000000000000000000..8c563797b02603ecfa8d9ad1b5da9d4520429887
 --- /dev/null
 +++ b/res/values-nl/unica_qpr2_wheel.xml
 @@ -0,0 +1,4 @@
@@ -10,16 +11,20 @@ new file mode 100644
 +    <string name="unica_qpr2_controlled_scrolling_summary">Gebruik een vaste wielsnelheid in plaats van scrollversnelling</string>
 +</resources>
 diff --git a/res/values/public.xml b/res/values/public.xml
+index 7d7fe33d579870714a5f7a4641e91b05c0383696..c7bde1475447c3fc6d2be2f18049fcc15bd7df34 100644
 --- a/res/values/public.xml
 +++ b/res/values/public.xml
-@@ -49061,4 +49061,5 @@
+@@ -49061,6 +49061,7 @@
      <public type="string" name="unica_qpr2_contrast_title" id="0x7f1544e1" />
      <public type="string" name="unica_qpr2_diagonal_summary" id="0x7f1544e2" />
      <public type="string" name="unica_qpr2_diagonal_title" id="0x7f1544e3" />
 +    <public type="string" name="unica_qpr2_controlled_scrolling_summary" id="0x7f1544e4" />
- </resources>
+     <public type="style" name="SudBase.ProgressBarLarge" id="0x7f1604f0" />
+     <public type="style" name="SudBaseCardTitle" id="0x7f1604f1" />
+     <public type="style" name="SudBaseHeaderTitle" id="0x7f1604f2" />
 diff --git a/res/values/unica_qpr2_wheel.xml b/res/values/unica_qpr2_wheel.xml
 new file mode 100644
+index 0000000000000000000000000000000000000000..5a9a638e02880cbb25a4728e2ea4b90d101f2936
 --- /dev/null
 +++ b/res/values/unica_qpr2_wheel.xml
 @@ -0,0 +1,4 @@
@@ -28,6 +33,7 @@ new file mode 100644
 +    <string name="unica_qpr2_controlled_scrolling_summary">Use a fixed wheel speed instead of scrolling acceleration</string>
 +</resources>
 diff --git a/res/xml/sec_mouse_settings.xml b/res/xml/sec_mouse_settings.xml
+index 2f3d38c69c5f60f3491c67db0d76a279690eef6d..61c572b466324745ddebd6149f540080fd58671e 100644
 --- a/res/xml/sec_mouse_settings.xml
 +++ b/res/xml/sec_mouse_settings.xml
 @@ -2,7 +2,9 @@
@@ -41,3 +47,6 @@ diff --git a/res/xml/sec_mouse_settings.xml b/res/xml/sec_mouse_settings.xml
      <SecSwitchPreference android:title="@string/mouse_enhance_pointer_precision_title" android:key="enhance_pointer_precision" settings:controller="com.samsung.android.settings.inputmethod.EnhancePointerPrecisionPreferenceController" />
      <SecPreference android:title="@string/mouse_pointer_size_and_color_title" android:key="mouse_pointer_settings" android:fragment="com.samsung.android.settings.inputmethod.MousePointerSettingsFragment" settings:controller="com.samsung.android.settings.inputmethod.MousePointerSettingsPreferenceController" />
      <com.samsung.android.settings.widget.SecInsetCategoryPreference />
+-- 
+2.43.0
+

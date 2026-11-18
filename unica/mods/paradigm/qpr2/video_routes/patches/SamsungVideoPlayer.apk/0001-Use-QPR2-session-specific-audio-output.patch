@@ -2,42 +2,48 @@ Subject: [PATCH] Use the native Video Player media-session token for QPR2 audio 
 
 diff --git a/res/values-nl/unica_video_routes.xml b/res/values-nl/unica_video_routes.xml
 new file mode 100644
+index 0000000000000000000000000000000000000000..71b1ab5607caa01e9da671b8738d18c989f9a5ae
 --- /dev/null
 +++ b/res/values-nl/unica_video_routes.xml
 @@ -0,0 +1,2 @@
 +<?xml version="1.0" encoding="utf-8"?>
 +<resources><string name="unica_video_output_title">Audio-uitvoer</string><string name="unica_video_output_unavailable">Audio-uitvoer is niet beschikbaar voor deze afspeelsessie</string></resources>
 diff --git a/res/values/public.xml b/res/values/public.xml
+index b199b11b7ddd8f2a973b490f9d7a372afc8e970a..077f9fada399ebff040a5509be6cc79883121caa 100644
 --- a/res/values/public.xml
 +++ b/res/values/public.xml
-@@ -9123,4 +9123,7 @@
-     <public type="drawable" name="unica_inline_gap_7f080081" id="0x7f080081" />
-     <public type="drawable" name="unica_inline_gap_7f080082" id="0x7f080082" />
-     <public type="id" name="unica_glass_surface" id="0x7f0a0517" />
+@@ -9123,6 +9123,9 @@
+     <public type="style" name="TextAppearance.MaterialComponents.Button" id="0x7f140365" />
+     <public type="style" name="TextAppearance.MaterialComponents.Caption" id="0x7f140366" />
+     <public type="style" name="TextAppearance.MaterialComponents.Chip" id="0x7f140367" />
 +    <public type="id" name="unica_video_output" id="0x7f0a0518" />
 +    <public type="string" name="unica_video_output_title" id="0x7f1303db" />
 +    <public type="string" name="unica_video_output_unavailable" id="0x7f1303dc" />
- </resources>
+     <public type="style" name="TextAppearance.MaterialComponents.Headline1" id="0x7f140368" />
+     <public type="style" name="TextAppearance.MaterialComponents.Headline2" id="0x7f140369" />
+     <public type="style" name="TextAppearance.MaterialComponents.Headline3" id="0x7f14036a" />
 diff --git a/res/values/unica_video_routes.xml b/res/values/unica_video_routes.xml
 new file mode 100644
+index 0000000000000000000000000000000000000000..472a129260f70dcc353178ad15177343fb23fd3e
 --- /dev/null
 +++ b/res/values/unica_video_routes.xml
 @@ -0,0 +1,2 @@
 +<?xml version="1.0" encoding="utf-8"?>
 +<resources><item type="id" name="unica_video_output" /><string name="unica_video_output_title">Audio output</string><string name="unica_video_output_unavailable">Audio output is unavailable for this playback session</string></resources>
 diff --git a/smali/com/samsung/android/video/player/activity/MoviePlayer.smali b/smali/com/samsung/android/video/player/activity/MoviePlayer.smali
+index bf78e51eb66601f54e70189ad17cb09c62ccbcd1..db77b288d1f77e5605bd1da0063e4af945d7a110 100644
 --- a/smali/com/samsung/android/video/player/activity/MoviePlayer.smali
 +++ b/smali/com/samsung/android/video/player/activity/MoviePlayer.smali
 @@ -5029,6 +5029,8 @@
  
-     invoke-virtual {v1, v2, p1}, Landroid/view/MenuInflater;->inflate(ILandroid/view/Menu;)V
+     invoke-static {v6, v0}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;)I
  
 +    invoke-static {p0, p1}, Lio/mesalabs/unica/video/Qpr2VideoRoutes;->add(Landroid/app/Activity;Landroid/view/Menu;)V
 +
-     invoke-static {}, Llb/x1;->d()Llb/x1;
- 
-     move-result-object p1
-@@ -6825,7 +6827,27 @@
+     invoke-virtual {v9, v14}, Lpe/c;->b(Leb/d;)V
+     :try_end_6
+     .catchall {:try_start_6 .. :try_end_6} :catchall_4
+@@ -8422,7 +8424,27 @@
  .end method
  
  .method public final onOptionsItemSelected(Landroid/view/MenuItem;)Z
@@ -66,11 +72,10 @@ diff --git a/smali/com/samsung/android/video/player/activity/MoviePlayer.smali b
  
      invoke-super {p0, p1}, Landroid/app/Activity;->onOptionsItemSelected(Landroid/view/MenuItem;)Z
  
-@@ -7353,6 +7375,29 @@
-     iput-object v1, v0, Llb/x0;->b:Llb/w0;
+@@ -8951,6 +8973,29 @@
  
-     invoke-virtual {v0, p1}, Llb/x1;->f(Landroid/view/Menu;)V
-+
+     invoke-virtual {v0}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
+ 
 +    const/4 v2, 0x0
 +
 +    iget-object v0, v0, Llb/x0;->b:Llb/w0;
@@ -93,11 +98,13 @@ diff --git a/smali/com/samsung/android/video/player/activity/MoviePlayer.smali b
 +    :unica_video_session_ready
 +
 +    invoke-static {p0, p1, v0, v2}, Lio/mesalabs/unica/video/Qpr2VideoRoutes;->prepare(Landroid/app/Activity;Landroid/view/Menu;Landroid/media/session/MediaSession;Z)V
++
+     if-eqz p1, :cond_3
  
-     invoke-super {p0, p1}, Landroid/app/Activity;->onPrepareOptionsMenu(Landroid/view/Menu;)Z
- 
+     sget-object v1, Lca/i;->B:Lca/i;
 diff --git a/smali_classes2/io/mesalabs/unica/video/Qpr2VideoRoutes.smali b/smali_classes2/io/mesalabs/unica/video/Qpr2VideoRoutes.smali
 new file mode 100644
+index 0000000000000000000000000000000000000000..19f8cbb456aad9cdf0ba0b9a1f9cb3d4fcaa7227
 --- /dev/null
 +++ b/smali_classes2/io/mesalabs/unica/video/Qpr2VideoRoutes.smali
 @@ -0,0 +1,281 @@
@@ -382,3 +389,6 @@ new file mode 100644
 +
 +    return p0
 +.end method
+-- 
+2.43.0
+

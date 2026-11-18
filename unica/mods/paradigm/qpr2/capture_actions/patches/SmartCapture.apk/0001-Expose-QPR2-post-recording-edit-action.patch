@@ -1,21 +1,20 @@
 Subject: [PATCH] Expose QPR2 post-recording Edit through the existing Samsung dispatcher
 
-diff --git a/smali_classes3/com/samsung/android/app/smartcapture/baseutil/notification/ScreenRecorderNotification.smali b/smali_classes3/com/samsung/android/app/smartcapture/baseutil/notification/ScreenRecorderNotification.smali
---- a/smali_classes3/com/samsung/android/app/smartcapture/baseutil/notification/ScreenRecorderNotification.smali
-+++ b/smali_classes3/com/samsung/android/app/smartcapture/baseutil/notification/ScreenRecorderNotification.smali
-@@ -397,6 +397,10 @@
+diff --git a/smali/com/samsung/android/app/smartcapture/baseutil/notification/ScreenRecorderNotification.smali b/smali/com/samsung/android/app/smartcapture/baseutil/notification/ScreenRecorderNotification.smali
+index a643e007dfc9fa198bc3498afd7cc54699e07752..80d76bde85e9df7f5d5eb004b136cf64ddf7f93f 100644
+--- a/smali/com/samsung/android/app/smartcapture/baseutil/notification/ScreenRecorderNotification.smali
++++ b/smali/com/samsung/android/app/smartcapture/baseutil/notification/ScreenRecorderNotification.smali
+@@ -53,3 +53,7 @@
  
-     move-result-object p1
- 
+     return-void
+ .end method
 +    iget-object v5, p0, Lcom/samsung/android/app/smartcapture/baseutil/notification/ScreenRecorderNotification;->mContext:Landroid/content/Context;
 +
 +    invoke-static {v5, p2, p3, v6}, Lio/mesalabs/unica/capture/Qpr2RecordingActions;->addEdit(Landroid/content/Context;Landroid/net/Uri;Ljava/lang/String;Landroidx/core/app/NotificationCompat$Builder;)V
 +
-     const-string v0, "delete"
- 
-     invoke-virtual {p1, v0}, Landroid/content/Intent;->setAction(Ljava/lang/String;)Landroid/content/Intent;
 diff --git a/smali_classes6/io/mesalabs/unica/capture/Qpr2RecordingActions.smali b/smali_classes6/io/mesalabs/unica/capture/Qpr2RecordingActions.smali
 new file mode 100644
+index 0000000000000000000000000000000000000000..91c8d26bfc67eb9627e2da7fa47857c9f615b290
 --- /dev/null
 +++ b/smali_classes6/io/mesalabs/unica/capture/Qpr2RecordingActions.smali
 @@ -0,0 +1,131 @@
@@ -150,3 +149,6 @@ new file mode 100644
 +    :cond_72
 +    return-void
 +.end method
+-- 
+2.43.0
+

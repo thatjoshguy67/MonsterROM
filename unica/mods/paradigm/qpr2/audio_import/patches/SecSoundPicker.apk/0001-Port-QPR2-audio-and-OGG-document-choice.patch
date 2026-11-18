@@ -2,36 +2,42 @@ Subject: [PATCH] Offer the QPR2 audio/OGG document route beside the native Samsu
 
 diff --git a/res/values-nl/unica_sound_documents.xml b/res/values-nl/unica_sound_documents.xml
 new file mode 100644
+index 0000000000000000000000000000000000000000..aa13c6b6f2ee38031e48c7bf780845270f1c5d9a
 --- /dev/null
 +++ b/res/values-nl/unica_sound_documents.xml
 @@ -0,0 +1,2 @@
 +<?xml version="1.0" encoding="utf-8"?>
 +<resources><string name="unica_sound_document_title">Bestand kiezen…</string><string name="unica_sound_document_unavailable">Geen bestandskiezer beschikbaar</string></resources>
 diff --git a/res/values/public.xml b/res/values/public.xml
+index 36fddb26e6f84120f480b757955157fbd245f7fc..5ad662370db0895f51d32a674266d20d7c6d5233 100644
 --- a/res/values/public.xml
 +++ b/res/values/public.xml
-@@ -6380,4 +6380,7 @@
+@@ -6380,6 +6380,9 @@
      <public type="drawable" name="unica_inline_gap_7f070033" id="0x7f070033" />
      <public type="drawable" name="unica_inline_gap_7f070034" id="0x7f070034" />
      <public type="drawable" name="unica_inline_gap_7f070035" id="0x7f070035" />
 +    <public type="id" name="unica_sound_document_import" id="0x7f08034a" />
 +    <public type="string" name="unica_sound_document_title" id="0x7f100182" />
 +    <public type="string" name="unica_sound_document_unavailable" id="0x7f100183" />
- </resources>
+     <public type="style" name="Theme.MaterialComponents.Dialog.FixedSize" id="0x7f1203b3" />
+     <public type="style" name="Theme.MaterialComponents.Dialog.FixedSize.Bridge" id="0x7f1203b4" />
+     <public type="style" name="Theme.MaterialComponents.Dialog.MinWidth" id="0x7f1203b5" />
 diff --git a/res/values/unica_sound_documents.xml b/res/values/unica_sound_documents.xml
 new file mode 100644
+index 0000000000000000000000000000000000000000..902bbcbbec8cc7841c39995f54a41b49bddf187e
 --- /dev/null
 +++ b/res/values/unica_sound_documents.xml
 @@ -0,0 +1,2 @@
 +<?xml version="1.0" encoding="utf-8"?>
 +<resources><item type="id" name="unica_sound_document_import" /><string name="unica_sound_document_title">Choose a file…</string><string name="unica_sound_document_unavailable">No file picker is available</string></resources>
 diff --git a/smali/com/samsung/android/secsoundpicker/SecSoundPickerActivity.smali b/smali/com/samsung/android/secsoundpicker/SecSoundPickerActivity.smali
+index a4b03a5ef2ffd268c8942b86ef2037e30f863628..5e8cb8c50d3247aa493419dbc39e8bd074a9143e 100644
 --- a/smali/com/samsung/android/secsoundpicker/SecSoundPickerActivity.smali
 +++ b/smali/com/samsung/android/secsoundpicker/SecSoundPickerActivity.smali
-@@ -3213,7 +3213,11 @@
+@@ -3190,7 +3190,11 @@
  .end method
  
- .method public onCreateOptionsMenu(Landroid/view/Menu;)Z
+ .method private setViewPager()V
 -    .locals 5
 +    .locals 9
 +
@@ -39,9 +45,9 @@ diff --git a/smali/com/samsung/android/secsoundpicker/SecSoundPickerActivity.sma
 +
 +    move-object v6, p1
  
-     const-string v0, "onCreateOptionsMenu"
+     sget v0, Lcom/samsung/android/secsoundpicker/R$id;->sec_soundpicker_tab_container:I
  
-@@ -3300,6 +3304,12 @@
+@@ -5064,6 +5068,12 @@
  
      move-result p0
  
@@ -54,10 +60,10 @@ diff --git a/smali/com/samsung/android/secsoundpicker/SecSoundPickerActivity.sma
      return p0
  .end method
  
-@@ -3341,6 +3351,22 @@
+@@ -5105,6 +5115,22 @@
  
- .method public onOptionsItemSelected(Landroid/view/MenuItem;)Z
-     .locals 4
+     if-eqz v0, :cond_1
+ 
 +
 +    iget-boolean v0, p0, Lcom/samsung/android/secsoundpicker/SecSoundPickerActivity;->mHasAddMenu:Z
 +
@@ -74,11 +80,12 @@ diff --git a/smali/com/samsung/android/secsoundpicker/SecSoundPickerActivity.sma
 +    return v0
 +
 +    :unica_original_sound_menu
+     iget-object v1, p0, Lcom/samsung/android/secsoundpicker/SecSoundPickerActivity;->mEnableFadingEdgeRunnable:Ljava/lang/Runnable;
  
-     invoke-interface {p1}, Landroid/view/MenuItem;->getItemId()I
- 
+     if-eqz v1, :cond_1
 diff --git a/smali_classes2/io/mesalabs/unica/audio/Qpr2SoundDocuments.smali b/smali_classes2/io/mesalabs/unica/audio/Qpr2SoundDocuments.smali
 new file mode 100644
+index 0000000000000000000000000000000000000000..ded03ea372c69d2a42fa25f0c2ec0b5365120f8a
 --- /dev/null
 +++ b/smali_classes2/io/mesalabs/unica/audio/Qpr2SoundDocuments.smali
 @@ -0,0 +1,240 @@
@@ -322,3 +329,6 @@ new file mode 100644
 +
 +    return p0
 +.end method
+-- 
+2.43.0
+

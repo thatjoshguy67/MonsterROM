@@ -1,12 +1,13 @@
 Subject: [PATCH] Preserve every existing compiled UN1CA resource ID before adding QPR2 controls
 
 diff --git a/res/values/public.xml b/res/values/public.xml
+index be7b02ba55226c9224d1b2762194e36bbfb41ffa..7c6b003438e008b0957d75bb993abb2fd353486d 100644
 --- a/res/values/public.xml
 +++ b/res/values/public.xml
-@@ -48953,4 +48953,90 @@
-     <public type="xml" name="zen_mode_select_bypassing_apps" id="0x7f18033e" />
-     <public type="xml" name="zen_mode_settings" id="0x7f18033f" />
-     <public type="xml" name="zen_mode_sound_vibration_settings" id="0x7f180340" />
+@@ -48953,6 +48953,92 @@
+     <public type="style" name="SudAlertDialogThemeCompat.Light" id="0x7f1604ed" />
+     <public type="style" name="SudAppCompatButtonButtonBarAlertDialog" id="0x7f1604ee" />
+     <public type="style" name="SudAppCompatButtonButtonBarAlertDialog.Light" id="0x7f1604ef" />
 +    <public type="color" name="sec_dashboard_unica_color" id="0x7f061027" />
 +    <public type="color" name="unica_settings_ic_extra_color" id="0x7f061028" />
 +    <public type="color" name="unica_settings_ic_spoof_color" id="0x7f061029" />
@@ -93,4 +94,9 @@ diff --git a/res/values/public.xml b/res/values/public.xml
 +    <public type="xml" name="unica_spoof_settings" id="0x7f180342" />
 +    <public type="xml" name="unica_top_settings" id="0x7f180343" />
 +    <public type="xml" name="unica_ui_settings" id="0x7f180344" />
- </resources>
+     <public type="style" name="SudBase.ProgressBarLarge" id="0x7f1604f0" />
+     <public type="style" name="SudBaseCardTitle" id="0x7f1604f1" />
+     <public type="style" name="SudBaseHeaderTitle" id="0x7f1604f2" />
+-- 
+2.43.0
+

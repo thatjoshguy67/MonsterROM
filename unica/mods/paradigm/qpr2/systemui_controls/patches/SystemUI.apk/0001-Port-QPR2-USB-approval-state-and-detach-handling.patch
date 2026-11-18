@@ -1,9 +1,10 @@
 Subject: [PATCH] Keep pending USB approvals through recreation and process QPR2 detached-device intents
 
 diff --git a/smali_classes4/com/android/systemui/usb/UsbAuthorizationActivity.smali b/smali_classes4/com/android/systemui/usb/UsbAuthorizationActivity.smali
+index 2cf09de5deff4e28d2b31eb0f799fe7ddd34f294..050c0f3ef917688189cc70b9efadf6cecca121a7 100644
 --- a/smali_classes4/com/android/systemui/usb/UsbAuthorizationActivity.smali
 +++ b/smali_classes4/com/android/systemui/usb/UsbAuthorizationActivity.smali
-@@ -86,7 +86,9 @@
+@@ -2520,7 +2520,9 @@
  .end method
  
  .method public final onCreate(Landroid/os/Bundle;)V
@@ -12,13 +13,12 @@ diff --git a/smali_classes4/com/android/systemui/usb/UsbAuthorizationActivity.sm
 +
 +    move-object v2, p1
  
-     const v0, 0x7e1407ae
+     invoke-super {p0, p1}, Landroid/app/Activity;->onCreate(Landroid/os/Bundle;)V
  
-@@ -118,6 +120,16 @@
-     move-result-object p1
+@@ -2579,6 +2581,16 @@
  
      iput-object p1, p0, Lcom/android/systemui/usb/UsbAuthorizationActivity;->helper:Lcom/android/systemui/usb/UsbAuthorizationHelper;
-+
+ 
 +    invoke-static {p1, v2}, Lio/mesalabs/unica/qpr2/Qpr2UsbAuthorizationState;->restore(Lcom/android/systemui/usb/UsbAuthorizationHelper;Landroid/os/Bundle;)Z
 +
 +    move-result v0
@@ -28,11 +28,12 @@ diff --git a/smali_classes4/com/android/systemui/usb/UsbAuthorizationActivity.sm
 +    return-void
 +
 +    :unica_usb_fresh_intent
++
+     invoke-virtual {p0}, Landroid/app/Activity;->finish()V
  
-     invoke-virtual {p0}, Lcom/android/internal/app/AlertActivity;->getIntent()Landroid/content/Intent;
- 
-@@ -592,3 +604,27 @@
- 
+     return-void
+@@ -3004,3 +3016,27 @@
+     :cond_5
      return-void
  .end method
 +
@@ -60,23 +61,24 @@ diff --git a/smali_classes4/com/android/systemui/usb/UsbAuthorizationActivity.sm
 +    return-void
 +.end method
 diff --git a/smali_classes4/com/android/systemui/usb/UsbAuthorizationHelper.smali b/smali_classes4/com/android/systemui/usb/UsbAuthorizationHelper.smali
+index f9798c810f46701497435a07b3b8bb24383569e9..73aceefeefa4039ba81728ad21e90502239fd189 100644
 --- a/smali_classes4/com/android/systemui/usb/UsbAuthorizationHelper.smali
 +++ b/smali_classes4/com/android/systemui/usb/UsbAuthorizationHelper.smali
-@@ -92,7 +92,9 @@
+@@ -461,7 +461,9 @@
+ .end method
  
- # virtual methods
  .method public final newDeviceIntent(Landroid/content/Intent;)V
 -    .locals 10
 +    .locals 11
 +
 +    move-object v10, p1
  
-     const-string v0, "device"
+     const-string/jumbo v0, "device"
  
-@@ -126,6 +128,16 @@
-     :cond_1
-     iput-boolean v2, p0, Lcom/android/systemui/usb/UsbAuthorizationHelper;->untrusted:Z
+@@ -495,6 +497,16 @@
+     move v3, v2
  
+     goto :goto_1
 +    invoke-static {p0, v10, v0}, Lio/mesalabs/unica/qpr2/Qpr2UsbAuthorizationState;->detachIntent(Lcom/android/systemui/usb/UsbAuthorizationHelper;Landroid/content/Intent;Landroid/hardware/usb/UsbDevice;)Z
 +
 +    move-result v1
@@ -87,11 +89,12 @@ diff --git a/smali_classes4/com/android/systemui/usb/UsbAuthorizationHelper.smal
 +
 +    :unica_usb_attached_intent
 +
-     iget-object v1, p0, Lcom/android/systemui/usb/UsbAuthorizationHelper;->pendingDevices:Landroid/util/ArrayMap;
  
-     invoke-virtual {v0}, Landroid/hardware/usb/UsbDevice;->getDeviceName()Ljava/lang/String;
+     :cond_1
+     :goto_0
 diff --git a/smali_classes6/io/mesalabs/unica/qpr2/Qpr2UsbAuthorizationState.smali b/smali_classes6/io/mesalabs/unica/qpr2/Qpr2UsbAuthorizationState.smali
 new file mode 100644
+index 0000000000000000000000000000000000000000..3c6bea660c9441471c2fd70d1be3b1804f1f1a85
 --- /dev/null
 +++ b/smali_classes6/io/mesalabs/unica/qpr2/Qpr2UsbAuthorizationState.smali
 @@ -0,0 +1,522 @@
@@ -617,3 +620,6 @@ new file mode 100644
 +    :cond_50
 +    return-void
 +.end method
+-- 
+2.43.0
+

@@ -1,16 +1,20 @@
 Subject: [PATCH] Identify the QPR2 r11 app candidate
 
 diff --git a/apktool.yml b/apktool.yml
+index 46a831ceeca5cfc813c04fbbee6d7f2b36471a2c..d777270c1a71fc8789d8be82094b52186018119c 100644
 --- a/apktool.yml
 +++ b/apktool.yml
-@@ -8,8 +8,8 @@
+@@ -8,8 +8,8 @@ sdkInfo:
    minSdkVersion: 36
    targetSdkVersion: 37
  versionInfo:
--  versionCode: 1560209000
--  versionName: 15.6.02.9
-+  versionCode: 1560209002
-+  versionName: 15.6.02.9-UN1CA.QPR2.r17
+-  versionCode: 1561002000
+-  versionName: 15.6.10.2
++  versionCode: 1561002002
++  versionName: 15.6.10.2-UN1CA.QPR2.r17
  resourcesInfo:
    packageId: 127
- doNotCompress:
+   compactEntries: true
+-- 
+2.43.0
+
