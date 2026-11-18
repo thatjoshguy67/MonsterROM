@@ -121,6 +121,7 @@ PRODUCT_DISPLAY_SMALI_DIR="smali_classes4"
 PRODUCT_TELEPHONY_SMALI_DIR="smali_classes4"
 PRODUCT_REFRESH_DUMP_METHOD="dump(Ljava/io/PrintWriter;Ljava/lang/String;Z)V"
 PRODUCT_RESOLUTION_PROFILE=false
+PRODUCT_RESOLUTION_DROP=false
 PRODUCT_OPTICAL_PROFILE=false
 if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
     PRODUCT_DISPLAY_SMALI_DIR="smali_classes3"
@@ -165,6 +166,14 @@ if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
                 [ "$TARGET_COMMON_SUPPORT_DYN_RESOLUTION_CONTROL" = true ] && \
                 [ "$(GET_FINGERPRINT_SENSOR_TYPE "$TARGET_FINGERPRINT_CONFIG_SENSOR")" = ultrasonic ]; then
             PRODUCT_RESOLUTION_PROFILE=true
+        elif [ "$TARGET_CODENAME" = "t2s" ] && [ "$TARGET_PLATFORM_SDK_VERSION" -eq 35 ] && \
+                [ "$TARGET_OS_SINGLE_SYSTEM_IMAGE" = "essi" ] && \
+                [ "$SOURCE_COMMON_SUPPORT_DYN_RESOLUTION_CONTROL" = true ] && \
+                [ "$TARGET_COMMON_SUPPORT_DYN_RESOLUTION_CONTROL" = false ] && \
+                [ "$(GET_FINGERPRINT_SENSOR_TYPE "$TARGET_FINGERPRINT_CONFIG_SENSOR")" = ultrasonic ]; then
+            # t2s (FHD+ panel) drops the donor's multi-resolution capability: no
+            # resolution profile; the floating feature is removed further below.
+            PRODUCT_RESOLUTION_DROP=true
         else
             ABORT "Unreviewed One UI 9 dynamic-resolution capability transition"
             return 1
@@ -448,6 +457,9 @@ elif ! $SOURCE_COMMON_SUPPORT_DYN_RESOLUTION_CONTROL; then
             "$MODPATH/resolution/SystemUI.apk/0001-Enable-dynamic-resolution-control.patch"
     fi
 else
+    if $PRODUCT_RESOLUTION_DROP; then
+        SET_FLOATING_FEATURE_CONFIG "SEC_FLOATING_FEATURE_COMMON_CONFIG_DYN_RESOLUTION_CONTROL" --delete || return 1
+    fi
     if ! $TARGET_COMMON_SUPPORT_DYN_RESOLUTION_CONTROL; then
         # TODO handle this condition
         LOG_MISSING_PATCHES "SOURCE_COMMON_SUPPORT_DYN_RESOLUTION_CONTROL" "TARGET_COMMON_SUPPORT_DYN_RESOLUTION_CONTROL"
@@ -1601,5 +1613,5 @@ fi
 
 unset TARGET_FIRMWARE_PATH
 unset PRODUCT_DISPLAY_SMALI_DIR PRODUCT_TELEPHONY_SMALI_DIR PRODUCT_REFRESH_DUMP_METHOD \
-    PRODUCT_RESOLUTION_PROFILE PRODUCT_OPTICAL_PROFILE
+    PRODUCT_RESOLUTION_PROFILE PRODUCT_RESOLUTION_DROP PRODUCT_OPTICAL_PROFILE
 unset -f GET_FINGERPRINT_SENSOR_TYPE LOG_MISSING_PATCHES
