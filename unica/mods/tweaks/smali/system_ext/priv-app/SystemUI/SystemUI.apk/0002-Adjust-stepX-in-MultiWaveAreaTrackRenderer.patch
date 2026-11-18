@@ -4,32 +4,20 @@ Date: Wed, 15 Apr 2026 08:45:10 +0200
 Subject: [PATCH] Adjust stepX in MultiWaveAreaTrackRenderer
 
 ---
- .../track/auto/MultiWaveAreaTrackRenderer.smali        | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/smali_classes2/com/android/systemui/media/audiovisseekbar/renderer/track/auto/MultiWaveAreaTrackRenderer.smali b/smali_classes2/com/android/systemui/media/audiovisseekbar/renderer/track/auto/MultiWaveAreaTrackRenderer.smali
-index bf1c1b59e6..fd59150b77 100644
---- a/smali_classes2/com/android/systemui/media/audiovisseekbar/renderer/track/auto/MultiWaveAreaTrackRenderer.smali
-+++ b/smali_classes2/com/android/systemui/media/audiovisseekbar/renderer/track/auto/MultiWaveAreaTrackRenderer.smali
-@@ -51,13 +51,15 @@
+diff --git a/smali_classes2/com/android/systemui/media/colorfulwave/renderer/MultiWaveAreaTrackRenderer$WaveStyle.smali b/smali_classes2/com/android/systemui/media/colorfulwave/renderer/MultiWaveAreaTrackRenderer$WaveStyle.smali
+index 04f1bc5f15a3ae2965e0a46c3b16e91fe83d0c22..a10e3e257d00aebc4547425bb15ee44fe3e374f4 100644
+--- a/smali_classes2/com/android/systemui/media/colorfulwave/renderer/MultiWaveAreaTrackRenderer$WaveStyle.smali
++++ b/smali_classes2/com/android/systemui/media/colorfulwave/renderer/MultiWaveAreaTrackRenderer$WaveStyle.smali
+@@ -64,6 +64,8 @@
  
-     iput p1, p0, Lcom/android/systemui/media/audiovisseekbar/renderer/track/auto/MultiWaveAreaTrackRenderer;->numWaves:I
+     iput p11, p0, Lcom/android/systemui/media/colorfulwave/renderer/MultiWaveAreaTrackRenderer$WaveStyle;->jitter:F
  
--    const/4 p2, 0x3
-+    const/4 p1, 0x3
- 
--    iput p2, p0, Lcom/android/systemui/media/audiovisseekbar/renderer/track/auto/MultiWaveAreaTrackRenderer;->cycleCount:I
-+    iput p1, p0, Lcom/android/systemui/media/audiovisseekbar/renderer/track/auto/MultiWaveAreaTrackRenderer;->cycleCount:I
- 
--    const p2, -0x43333333    # -0.025f
-+    const p1, -0x43333333    # -0.025f
- 
--    iput p2, p0, Lcom/android/systemui/media/audiovisseekbar/renderer/track/auto/MultiWaveAreaTrackRenderer;->phaseShift:F
-+    iput p1, p0, Lcom/android/systemui/media/audiovisseekbar/renderer/track/auto/MultiWaveAreaTrackRenderer;->phaseShift:F
++    const/16 p12, 0xa
 +
-+    const/16 p1, 0xa
+     iput p12, p0, Lcom/android/systemui/media/colorfulwave/renderer/MultiWaveAreaTrackRenderer$WaveStyle;->stepX:I
  
-     iput p1, p0, Lcom/android/systemui/media/audiovisseekbar/renderer/track/auto/MultiWaveAreaTrackRenderer;->stepX:I
- 
+     return-void
 -- 
-2.54.0
+2.43.0
+
