@@ -7,30 +7,22 @@ Subject: [PATCH] Enable Smart View tile visibility settings on One UI 9
  smali/com/android/systemui/QpRune.smali | 12 +-----------
  1 file changed, 3 insertions(+), 11 deletions(-)
 
-diff --git a/smali/com/android/systemui/QpRune.smali b/smali/com/android/systemui/QpRune.smali
---- a/smali/com/android/systemui/QpRune.smali
-+++ b/smali/com/android/systemui/QpRune.smali
-@@ -412,17 +412,9 @@
+--- a/smali_classes4/com/android/systemui/QpRune.smali
++++ b/smali_classes4/com/android/systemui/QpRune.smali
+@@ -512,15 +512,7 @@
  
-     sput-boolean v6, Lcom/android/systemui/QpRune;->QUICK_TILE_FLASHLIGHT_INTENSITY:Z
+     sput-boolean v1, Lcom/android/systemui/QpRune;->QUICK_TILE_FLASHLIGHT_INTENSITY:Z
  
 -    invoke-static {}, Lcom/samsung/android/feature/SemCscFeature;->getInstance()Lcom/samsung/android/feature/SemCscFeature;
 -
--    move-result-object v6
+-    move-result-object v1
 -
--    const-string v7, "CscFeature_Common_SupportZProjectFunctionInGlobal"
+-    const-string v2, "CscFeature_Common_SupportZProjectFunctionInGlobal"
 -
--    invoke-virtual {v6, v7, v3}, Lcom/samsung/android/feature/SemCscFeature;->getBoolean(Ljava/lang/String;Z)Z
+-    invoke-virtual {v1, v2, v5}, Lcom/samsung/android/feature/SemCscFeature;->getBoolean(Ljava/lang/String;Z)Z
 -
--    move-result v6
--
--    sput-boolean v6, Lcom/android/systemui/QpRune;->QUICK_TILE_HIDE_FROM_BAR:Z
-+    const/4 v6, 0x1
-+
-+    sput-boolean v6, Lcom/android/systemui/QpRune;->QUICK_TILE_HIDE_FROM_BAR:Z
+-    move-result v1
++    const/4 v1, 0x1
  
-     invoke-static {}, Lcom/samsung/android/feature/SemFloatingFeature;->getInstance()Lcom/samsung/android/feature/SemFloatingFeature;
+     sput-boolean v1, Lcom/android/systemui/QpRune;->QUICK_TILE_HIDE_FROM_BAR:Z
  
--- 
-2.51.1
-

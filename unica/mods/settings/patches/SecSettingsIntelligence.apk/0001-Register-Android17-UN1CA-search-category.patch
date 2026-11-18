@@ -5,7 +5,6 @@ Append both owned categories, including the optional official updater tile.
 An absent unofficial updater contributes no result, but an official updater
 must not be categorized as "others" simply because it uses its own key.
 
-diff --git a/smali_classes2/com/samsung/android/settings/intelligence/search/categorizing/TopLevelKeysCollector.smali b/smali_classes2/com/samsung/android/settings/intelligence/search/categorizing/TopLevelKeysCollector.smali
 --- a/smali_classes2/com/samsung/android/settings/intelligence/search/categorizing/TopLevelKeysCollector.smali
 +++ b/smali_classes2/com/samsung/android/settings/intelligence/search/categorizing/TopLevelKeysCollector.smali
 @@ -45,7 +45,7 @@
@@ -17,9 +16,9 @@ diff --git a/smali_classes2/com/samsung/android/settings/intelligence/search/cat
  
      move-object/from16 v0, p0
  
-@@ -123,6 +123,10 @@
+@@ -123,7 +123,11 @@
  
-     const-string v34, "top_level_about_phone"
+     const-string/jumbo v34, "top_level_about_phone"
  
 -    filled-new-array/range {v1 .. v36}, [Ljava/lang/String;
 +    const-string v37, "top_level_unica"
@@ -29,3 +28,4 @@ diff --git a/smali_classes2/com/samsung/android/settings/intelligence/search/cat
 +    filled-new-array/range {v1 .. v38}, [Ljava/lang/String;
  
      move-result-object v1
+ 

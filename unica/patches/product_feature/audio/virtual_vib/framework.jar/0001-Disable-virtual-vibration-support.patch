@@ -8,11 +8,9 @@ Subject: [PATCH] Disable virtual vibration support
  smali_classes6/com/samsung/android/vibrator/VibRune.smali | 2 +-
  2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/smali_classes6/com/samsung/android/audio/Rune.smali b/smali_classes6/com/samsung/android/audio/Rune.smali
-index da0fff18..73d8c8de 100644
---- a/smali_classes6/com/samsung/android/audio/Rune.smali
-+++ b/smali_classes6/com/samsung/android/audio/Rune.smali
-@@ -278,7 +278,7 @@
+--- a/smali_classes3/com/samsung/android/audio/Rune.smali
++++ b/smali_classes3/com/samsung/android/audio/Rune.smali
+@@ -332,7 +332,7 @@
  
  .field public static final blacklist SEC_AUDIO_SUPPORT_SOUND_THEME:Z
  
@@ -21,11 +19,9 @@ index da0fff18..73d8c8de 100644
  
  .field public static final blacklist SEC_AUDIO_SUPPORT_VOIP_ANTI_HOWLING:Z
  
-diff --git a/smali_classes6/com/samsung/android/vibrator/VibRune.smali b/smali_classes6/com/samsung/android/vibrator/VibRune.smali
-index 9c2b5121..011fa696 100644
---- a/smali_classes6/com/samsung/android/vibrator/VibRune.smali
-+++ b/smali_classes6/com/samsung/android/vibrator/VibRune.smali
-@@ -60,7 +60,7 @@
+--- a/smali_classes3/com/samsung/android/vibrator/VibRune.smali
++++ b/smali_classes3/com/samsung/android/vibrator/VibRune.smali
+@@ -64,7 +64,7 @@
  
  .field public static final blacklist SUPPORT_VIBRATION_TAG:Z = true
  
@@ -34,6 +30,3 @@ index 9c2b5121..011fa696 100644
  
  .field private static blacklist mIsHapticEngineIndexSupported:Z = false
  
--- 
-2.51.0
-

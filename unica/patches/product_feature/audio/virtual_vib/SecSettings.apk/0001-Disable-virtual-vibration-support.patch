@@ -10,14 +10,12 @@ Subject: [PATCH] Disable virtual vibration support
  .../eternal/provider/items/SoundItem.smali    |  4 -
  4 files changed, 15 insertions(+), 79 deletions(-)
 
-diff --git a/smali_classes3/com/samsung/android/settings/asbase/audio/SoundSettings$3.smali b/smali_classes3/com/samsung/android/settings/asbase/audio/SoundSettings$3.smali
-index 1e33453..a2567b6 100644
 --- a/smali_classes3/com/samsung/android/settings/asbase/audio/SoundSettings$3.smali
 +++ b/smali_classes3/com/samsung/android/settings/asbase/audio/SoundSettings$3.smali
-@@ -191,6 +191,14 @@
-
+@@ -230,6 +230,14 @@
+ 
      invoke-virtual {v0, p1}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
-
+ 
 +    const-string p1, "vibration_sound_enabled"
 +
 +    move-object v0, p0
@@ -28,37 +26,33 @@ index 1e33453..a2567b6 100644
 +
      return-object p0
  .end method
-
-diff --git a/smali_classes3/com/samsung/android/settings/asbase/reset/ResetSoundSystemFeedbackSettings$1.smali b/smali_classes3/com/samsung/android/settings/asbase/reset/ResetSoundSystemFeedbackSettings$1.smali
-index 80954c1..7aead51 100644
+ 
 --- a/smali_classes3/com/samsung/android/settings/asbase/reset/ResetSoundSystemFeedbackSettings$1.smali
 +++ b/smali_classes3/com/samsung/android/settings/asbase/reset/ResetSoundSystemFeedbackSettings$1.smali
 @@ -349,9 +349,5 @@
-
+ 
      invoke-static {p0, p1, v2}, Landroid/provider/Settings$System;->putInt(Landroid/content/ContentResolver;Ljava/lang/String;I)Z
-
--    const-string p1, "vibration_sound_enabled"
+ 
+-    const-string/jumbo p1, "vibration_sound_enabled"
 -
 -    invoke-static {p0, p1, v2}, Landroid/provider/Settings$System;->putInt(Landroid/content/ContentResolver;Ljava/lang/String;I)Z
 -
      return-void
  .end method
-diff --git a/smali_classes3/com/samsung/android/settings/asbase/vibration/VirtualVibrationSoundPreferenceController.smali b/smali_classes3/com/samsung/android/settings/asbase/vibration/VirtualVibrationSoundPreferenceController.smali
-index 0fcae1c..e0addfc 100644
 --- a/smali_classes3/com/samsung/android/settings/asbase/vibration/VirtualVibrationSoundPreferenceController.smali
 +++ b/smali_classes3/com/samsung/android/settings/asbase/vibration/VirtualVibrationSoundPreferenceController.smali
-@@ -251,7 +251,7 @@
+@@ -249,7 +249,7 @@
  .method public getAvailabilityStatus()I
      .locals 0
-
+ 
 -    const/4 p0, 0x0
 +    const/4 p0, 0x3
-
+ 
      return p0
  .end method
-@@ -553,55 +553,9 @@
+@@ -551,55 +551,9 @@
  .end method
-
+ 
  .method public setChecked(Z)Z
 -    .locals 4
 -
@@ -104,20 +98,21 @@ index 0fcae1c..e0addfc 100644
 -
 -    move-result-object p0
 -
--    const-string v0, "vibration_sound_enabled"
+-    const-string/jumbo v0, "vibration_sound_enabled"
 -
 -    invoke-static {p0, v0, p1}, Landroid/provider/Settings$System;->putInt(Landroid/content/ContentResolver;Ljava/lang/String;I)Z
-+    .locals 0
-
+-
 -    move-result p0
++    .locals 0
++
 +    const/4 p0, 0x0
-
+ 
      return p0
  .end method
-@@ -613,35 +567,17 @@
-
+@@ -611,63 +565,45 @@
+ 
      move-result-object v0
-
+ 
 -    invoke-virtual {p1}, Lcom/samsung/android/settings/cube/ControlValue;->getValue()Ljava/lang/String;
 -
 -    move-result-object p1
@@ -132,47 +127,79 @@ index 0fcae1c..e0addfc 100644
 -
 -    move-result-object p0
 -
--    const-string v1, "vibration_sound_enabled"
+-    const-string/jumbo v1, "vibration_sound_enabled"
 -
 -    invoke-static {p0, v1, p1}, Landroid/provider/Settings$System;->putInt(Landroid/content/ContentResolver;Ljava/lang/String;I)Z
 -
      new-instance p0, Lcom/samsung/android/settings/cube/ControlResult;
-
+ 
      invoke-direct {p0}, Ljava/lang/Object;-><init>()V
-
+ 
      iput-object v0, p0, Lcom/samsung/android/settings/cube/ControlResult;->mKey:Ljava/lang/String;
-
+ 
 -    sget-object p1, Lcom/samsung/android/settings/cube/ControlResult$ResultCode;->SUCCESS:Lcom/samsung/android/settings/cube/ControlResult$ResultCode;
 +    sget-object p1, Lcom/samsung/android/settings/cube/ControlResult$ResultCode;->FAIL:Lcom/samsung/android/settings/cube/ControlResult$ResultCode;
-
+ 
      iput-object p1, p0, Lcom/samsung/android/settings/cube/ControlResult;->mResultCode:Lcom/samsung/android/settings/cube/ControlResult$ResultCode;
-
--    const/4 p1, 0x0
+ 
 +    sget-object p1, Lcom/samsung/android/settings/cube/ControlResult$ErrorCode;->NOT_SUPPORT_DEVICE:Lcom/samsung/android/settings/cube/ControlResult$ErrorCode;
-
-     iput-object p1, p0, Lcom/samsung/android/settings/cube/ControlResult;->mErrorCode:Lcom/samsung/android/settings/cube/ControlResult$ErrorCode;
-
-@@ -663,13 +599,13 @@
-
-     if-eqz p0, :cond_0
-
++
++    iput-object p1, p0, Lcom/samsung/android/settings/cube/ControlResult;->mErrorCode:Lcom/samsung/android/settings/cube/ControlResult$ErrorCode;
++
++    const-string p1, ""
++
++    iput-object p1, p0, Lcom/samsung/android/settings/cube/ControlResult;->mErrorMsg:Ljava/lang/String;
++
++    invoke-static {}, Ljava/lang/invoke/VarHandle;->storeStoreFence()V
++
++    return-object p0
++.end method
++
++.method public updateState(Landroidx/preference/Preference;)V
++    .locals 0
++
++    invoke-super {p0, p1}, Lcom/android/settings/core/TogglePreferenceController;->updateState(Landroidx/preference/Preference;)V
++
++    iget-object p0, p0, Lcom/samsung/android/settings/asbase/vibration/VirtualVibrationSoundPreferenceController;->mCaptionPreference:Landroidx/preference/Preference;
++
++    if-eqz p0, :cond_0
++
+     const/4 p1, 0x0
+ 
+-    iput-object p1, p0, Lcom/samsung/android/settings/cube/ControlResult;->mErrorCode:Lcom/samsung/android/settings/cube/ControlResult$ErrorCode;
+-
+-    const-string p1, ""
+-
+-    iput-object p1, p0, Lcom/samsung/android/settings/cube/ControlResult;->mErrorMsg:Ljava/lang/String;
+-
+-    invoke-static {}, Ljava/lang/invoke/VarHandle;->storeStoreFence()V
+-
+-    return-object p0
+-.end method
+-
+-.method public updateState(Landroidx/preference/Preference;)V
+-    .locals 0
+-
+-    invoke-super {p0, p1}, Lcom/android/settings/core/TogglePreferenceController;->updateState(Landroidx/preference/Preference;)V
+-
+-    iget-object p0, p0, Lcom/samsung/android/settings/asbase/vibration/VirtualVibrationSoundPreferenceController;->mCaptionPreference:Landroidx/preference/Preference;
+-
+-    if-eqz p0, :cond_0
+-
 -    const/4 p1, 0x1
-+    const/4 p1, 0x0
-
+-
      invoke-virtual {p0, p1}, Landroidx/preference/Preference;->setVisible(Z)V
-
-     const-string p0, "VirtualVibrationSoundPreferenceController"
-
--    const-string p1, "updateState: SUPPORT_VIRTUAL_VIBRATION_SOUND = true, caption visibility set to true"
+ 
+     const-string/jumbo p0, "VirtualVibrationSoundPreferenceController"
+ 
+-    const-string/jumbo p1, "updateState: SUPPORT_VIRTUAL_VIBRATION_SOUND = true, caption visibility set to true"
 +    const-string p1, "updateState: SUPPORT_VIRTUAL_VIBRATION_SOUND = false, caption visibility set to false"
-
+ 
      invoke-static {p0, p1}, Lcom/samsung/android/util/SemLog;->d(Ljava/lang/String;Ljava/lang/String;)I
-
-diff --git a/smali_classes3/com/samsung/android/settings/eternal/provider/items/SoundItem.smali b/smali_classes3/com/samsung/android/settings/eternal/provider/items/SoundItem.smali
-index d057e2d..eba2257 100644
+ 
 --- a/smali_classes3/com/samsung/android/settings/eternal/provider/items/SoundItem.smali
 +++ b/smali_classes3/com/samsung/android/settings/eternal/provider/items/SoundItem.smali
-@@ -3777,7 +3777,6 @@
+@@ -3791,7 +3791,6 @@
          -0x48073965 -> :sswitch_24
          -0x3d7b48a7 -> :sswitch_23
          -0x3aba98f7 -> :sswitch_22
@@ -180,7 +207,7 @@ index d057e2d..eba2257 100644
          -0x1ddcc5dc -> :sswitch_20
          -0x1047e935 -> :sswitch_1f
          -0x738eff9 -> :sswitch_1e
-@@ -4645,7 +4644,6 @@
+@@ -4659,7 +4658,6 @@
          -0x48073965 -> :sswitch_1b
          -0x3d7b48a7 -> :sswitch_1a
          -0x3aba98f7 -> :sswitch_19
@@ -188,7 +215,7 @@ index d057e2d..eba2257 100644
          -0x1ddcc5dc -> :sswitch_17
          -0x1047e935 -> :sswitch_16
          -0x738eff9 -> :sswitch_15
-@@ -5454,7 +5452,6 @@
+@@ -5468,7 +5466,6 @@
          -0x48073965 -> :sswitch_1b
          -0x3d7b48a7 -> :sswitch_1a
          -0x3aba98f7 -> :sswitch_19
@@ -196,7 +223,7 @@ index d057e2d..eba2257 100644
          -0x1ddcc5dc -> :sswitch_17
          -0x1047e935 -> :sswitch_16
          -0x738eff9 -> :sswitch_15
-@@ -7545,7 +7542,6 @@
+@@ -7559,7 +7556,6 @@
          -0x48073965 -> :sswitch_24
          -0x3d7b48a7 -> :sswitch_23
          -0x3aba98f7 -> :sswitch_22
@@ -204,6 +231,3 @@ index d057e2d..eba2257 100644
          -0x1ddcc5dc -> :sswitch_20
          -0x1047e935 -> :sswitch_1f
          -0x738eff9 -> :sswitch_1e
---
-2.53.0
-

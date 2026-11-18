@@ -7,11 +7,9 @@ Subject: [PATCH] Disable 80211AX_6GHZ support
  .../android/wifitrackerlib/WifiEntry.smali    | 48 +------------------
  1 file changed, 1 insertion(+), 47 deletions(-)
 
-diff --git a/smali_classes4/com/android/wifitrackerlib/WifiEntry.smali b/smali_classes4/com/android/wifitrackerlib/WifiEntry.smali
-index 9574ab2..611934b 100644
 --- a/smali_classes4/com/android/wifitrackerlib/WifiEntry.smali
 +++ b/smali_classes4/com/android/wifitrackerlib/WifiEntry.smali
-@@ -390,54 +390,8 @@
+@@ -546,54 +546,8 @@
  .end method
  
  .method public final checkWifi6EStandard(II)Z
@@ -38,7 +36,7 @@ index 9574ab2..611934b 100644
 -    :cond_0
 -    new-instance p1, Ljava/lang/StringBuilder;
 -
--    const-string v0, "invalid Wi-Fi 6E network "
+-    const-string/jumbo v0, "invalid Wi-Fi 6E network "
 -
 -    invoke-direct {p1, v0}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
 -
@@ -58,7 +56,7 @@ index 9574ab2..611934b 100644
 -
 -    move-result-object p0
 -
--    const-string p1, "WifiEntry."
+-    const-string/jumbo p1, "WifiEntry."
 -
 -    invoke-static {p1, p0}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;)I
 -
@@ -68,6 +66,3 @@ index 9574ab2..611934b 100644
      const/4 p0, 0x0
  
      return p0
--- 
-2.53.0
-

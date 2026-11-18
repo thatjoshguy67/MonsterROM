@@ -3,28 +3,32 @@ Subject: [PATCH] Allow more than five MultiSound apps on One UI 9
 Keep the current selection and save callbacks; raise only the two selection
 limits and their matching declared constant.
 
-diff --git a/smali_classes2/com/samsung/android/setting/multisound/view/fragment/SelectMultipleAppsFragment.smali b/smali_classes2/com/samsung/android/setting/multisound/view/fragment/SelectMultipleAppsFragment.smali
-index 521a46a..41dadc3 100644
 --- a/smali_classes2/com/samsung/android/setting/multisound/view/fragment/SelectMultipleAppsFragment.smali
 +++ b/smali_classes2/com/samsung/android/setting/multisound/view/fragment/SelectMultipleAppsFragment.smali
-@@ -13,5 +13,5 @@
+@@ -22,7 +22,7 @@
  
- # static fields
+ .field private static final KEY_NEED_TO_UPDATE:Ljava/lang/String; = "need_to_update"
+ 
 -.field private static final MAX_SELECTION:I = 0x5
 +.field private static final MAX_SELECTION:I = 0x7fff
  
+ .field private static final ORDER_LAST:I = 0x7ffffffe
  
-@@ -1681,5 +1681,5 @@
+@@ -2044,7 +2044,7 @@
+ 
      move-result v1
  
 -    const/4 v2, 0x5
 +    const/16 v2, 0x7fff
  
      if-lt v1, v2, :cond_5
-@@ -1974,5 +1974,5 @@
+ 
+@@ -2316,7 +2316,7 @@
+ 
      move-result p1
  
 -    const/4 p2, 0x5
 +    const/16 p2, 0x7fff
  
      const/4 v0, 0x0
+ 

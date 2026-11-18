@@ -7,8 +7,6 @@ Subject: [PATCH] Disable APE_SERVICE support
  .../settings/wifi/develop/ApePreferenceController.smali     | 6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/smali_classes4/com/samsung/android/settings/wifi/develop/ApePreferenceController.smali b/smali_classes4/com/samsung/android/settings/wifi/develop/ApePreferenceController.smali
-index 41bfa34..caec750 100644
 --- a/smali_classes4/com/samsung/android/settings/wifi/develop/ApePreferenceController.smali
 +++ b/smali_classes4/com/samsung/android/settings/wifi/develop/ApePreferenceController.smali
 @@ -6,7 +6,7 @@
@@ -22,7 +20,7 @@ index 41bfa34..caec750 100644
  
 @@ -29,7 +29,7 @@
  
-     const-string v0, "sem_wifi_ape_enabled_labs"
+     const-string/jumbo v0, "sem_wifi_ape_enabled_labs"
  
 -    const/4 v1, 0x1
 +    const/4 v1, 0x0
@@ -38,6 +36,3 @@ index 41bfa34..caec750 100644
  
      return p0
  .end method
--- 
-2.53.0
-

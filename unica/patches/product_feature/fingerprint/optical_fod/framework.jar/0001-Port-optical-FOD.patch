@@ -1,9 +1,8 @@
 Subject: [PATCH] Port optical FOD to One UI 9 owners
 
-diff --git a/smali_classes2/android/hardware/fingerprint/HidlFingerprintSensorConfig.smali b/smali_classes2/android/hardware/fingerprint/HidlFingerprintSensorConfig.smali
 --- a/smali_classes2/android/hardware/fingerprint/HidlFingerprintSensorConfig.smali
 +++ b/smali_classes2/android/hardware/fingerprint/HidlFingerprintSensorConfig.smali
-@@ -159,6 +159,8 @@
+@@ -169,6 +169,8 @@
      goto :goto_0
  
      :cond_2
@@ -12,10 +11,9 @@ diff --git a/smali_classes2/android/hardware/fingerprint/HidlFingerprintSensorCo
      iput-byte v2, p0, Landroid/hardware/fingerprint/HidlFingerprintSensorConfig;->sensorType:B
  
      goto :goto_0
-diff --git a/smali_classes6/com/samsung/android/bio/fingerprint/SemFingerprintManager$Characteristics.smali b/smali_classes6/com/samsung/android/bio/fingerprint/SemFingerprintManager$Characteristics.smali
 --- a/smali_classes6/com/samsung/android/bio/fingerprint/SemFingerprintManager$Characteristics.smali
 +++ b/smali_classes6/com/samsung/android/bio/fingerprint/SemFingerprintManager$Characteristics.smali
-@@ -29,7 +29,7 @@
+@@ -31,7 +31,7 @@
  
  .field public static final whitelist SENSOR_TYPE_ULTRASONIC:I = 0x3
  
@@ -24,7 +22,7 @@ diff --git a/smali_classes6/com/samsung/android/bio/fingerprint/SemFingerprintMa
  
  
  # instance fields
-@@ -94,7 +94,7 @@
+@@ -96,7 +96,7 @@
  .method public whitelist getSensorType()I
      .locals 0
  
@@ -33,7 +31,6 @@ diff --git a/smali_classes6/com/samsung/android/bio/fingerprint/SemFingerprintMa
  
      return p0
  .end method
-diff --git a/smali_classes6/com/samsung/android/bio/fingerprint/SemFingerprintManager.smali b/smali_classes6/com/samsung/android/bio/fingerprint/SemFingerprintManager.smali
 --- a/smali_classes6/com/samsung/android/bio/fingerprint/SemFingerprintManager.smali
 +++ b/smali_classes6/com/samsung/android/bio/fingerprint/SemFingerprintManager.smali
 @@ -369,7 +369,7 @@
@@ -54,23 +51,12 @@ diff --git a/smali_classes6/com/samsung/android/bio/fingerprint/SemFingerprintMa
  
      return-object p0
  
-diff --git a/smali_classes4/android/view/ViewRootImpl.smali b/smali_classes4/android/view/ViewRootImpl.smali
---- a/smali_classes4/android/view/ViewRootImpl.smali
-+++ b/smali_classes4/android/view/ViewRootImpl.smali
-@@ -43041,6 +43041,8 @@
- 
-     invoke-direct {v0, v1, v2}, Landroid/graphics/BLASTBufferQueue;-><init>(Ljava/lang/String;Z)V
- 
-+    invoke-direct {p0, v0}, Landroid/view/ViewRootImpl;->setOpticalMaskBufferUsage(Landroid/graphics/BLASTBufferQueue;)V
-+
-     iput-object v0, p0, Landroid/view/ViewRootImpl;->mBlastBufferQueue:Landroid/graphics/BLASTBufferQueue;
- 
-     iget-object v1, p0, Landroid/view/ViewRootImpl;->mBbqApplyToken:Landroid/os/IBinder;
-@@ -43765,3 +43767,41 @@
- 
+--- a/smali_classes5/android/view/ViewRootImpl.smali
++++ b/smali_classes5/android/view/ViewRootImpl.smali
+@@ -17159,6 +17159,44 @@
      throw p1
  .end method
-+
+ 
 +.method private static native nativeSetOpticalMaskBufferUsage(J)I
 +.end method
 +
@@ -108,3 +94,16 @@ diff --git a/smali_classes4/android/view/ViewRootImpl.smali b/smali_classes4/and
 +    :optical_usage_done
 +    return-void
 +.end method
++
+ .method private greylist-max-o performLayout(Landroid/view/WindowManager$LayoutParams;II)V
+     .locals 12
+ 
+@@ -44795,6 +44833,8 @@
+ 
+     invoke-direct {v0, v1, v2}, Landroid/graphics/BLASTBufferQueue;-><init>(Ljava/lang/String;Z)V
+ 
++    invoke-direct {p0, v0}, Landroid/view/ViewRootImpl;->setOpticalMaskBufferUsage(Landroid/graphics/BLASTBufferQueue;)V
++
+     iput-object v0, p0, Landroid/view/ViewRootImpl;->mBlastBufferQueue:Landroid/graphics/BLASTBufferQueue;
+ 
+     iget-object v1, p0, Landroid/view/ViewRootImpl;->mBbqApplyToken:Landroid/os/IBinder;

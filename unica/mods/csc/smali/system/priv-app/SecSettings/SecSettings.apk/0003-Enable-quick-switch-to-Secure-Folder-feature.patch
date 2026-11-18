@@ -11,14 +11,13 @@ presence of aliveprivacy.
  .../android/settings/usefulfeature/Usefulfeature$1.smali | 9 ---------
  1 file changed, 9 deletions(-)
 
-diff --git a/smali_classes3/com/samsung/android/settings/usefulfeature/Usefulfeature$1.smali b/smali_classes3/com/samsung/android/settings/usefulfeature/Usefulfeature$1.smali
---- a/smali_classes3/com/samsung/android/settings/usefulfeature/Usefulfeature$1.smali
-+++ b/smali_classes3/com/samsung/android/settings/usefulfeature/Usefulfeature$1.smali
-@@ -251,14 +251,6 @@
+--- a/smali_classes4/com/samsung/android/settings/usefulfeature/Usefulfeature$1.smali
++++ b/smali_classes4/com/samsung/android/settings/usefulfeature/Usefulfeature$1.smali
+@@ -250,14 +250,6 @@
  
      iput-object v1, v0, Lcom/android/settingslib/search/SearchIndexableRaw;->keywords:Ljava/lang/String;
  
--    const-string v1, "com.samsung.android.aliveprivacy"
+-    const-string/jumbo v1, "com.samsung.android.aliveprivacy"
 -
 -    invoke-static {p1, v1}, Lcom/android/settings/Utils;->hasPackage(Landroid/content/Context;Ljava/lang/String;)Z
 -
@@ -29,14 +28,11 @@ diff --git a/smali_classes3/com/samsung/android/settings/usefulfeature/Usefulfea
      new-instance v1, Ljava/lang/StringBuilder;
  
      invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
-@@ -281,7 +273,6 @@
+@@ -280,7 +272,6 @@
  
      iput-object p1, v0, Lcom/android/settingslib/search/SearchIndexableRaw;->keywords:Ljava/lang/String;
  
 -    :cond_1
-     const-string p1, "function_key_setting"
+     const-string/jumbo p1, "function_key_setting"
  
      iput-object p1, v0, Landroid/provider/SearchIndexableData;->key:Ljava/lang/String;
--- 
-2.51.2
-
