@@ -4,47 +4,83 @@ Date: Sat, 20 Sep 2025 00:18:19 +0200
 Subject: [PATCH] Enable multi user support
 
 ---
- .../multiuser/MultiUserSupportsHelper.smali   | 22 +------------------
- 1 file changed, 1 insertion(+), 21 deletions(-)
 
-diff --git a/smali_classes6/com/samsung/android/core/pm/multiuser/MultiUserSupportsHelper.smali b/smali_classes6/com/samsung/android/core/pm/multiuser/MultiUserSupportsHelper.smali
-index c4045340..89638bdf 100644
---- a/smali_classes6/com/samsung/android/core/pm/multiuser/MultiUserSupportsHelper.smali
-+++ b/smali_classes6/com/samsung/android/core/pm/multiuser/MultiUserSupportsHelper.smali
-@@ -15,32 +15,12 @@
- .method static constructor blacklist <clinit>()V
-     .locals 2
+diff --git a/smali_classes3/com/samsung/android/core/pm/multiuser/MultiUserSupportsHelper.smali b/smali_classes3/com/samsung/android/core/pm/multiuser/MultiUserSupportsHelper.smali
+index 05784140fd1e773ca17f857f4e51973ba1fdac13..e03714cb4039dbed7b47738c6a0d4fd9bcbcd44a 100644
+--- a/smali_classes3/com/samsung/android/core/pm/multiuser/MultiUserSupportsHelper.smali
++++ b/smali_classes3/com/samsung/android/core/pm/multiuser/MultiUserSupportsHelper.smali
+@@ -17,7 +17,7 @@
  
--    const-string/jumbo v0, "ro.build.characteristics"
+ # direct methods
+ .method static constructor blacklist <clinit>()V
+-    .locals 4
++    .locals 2
+ 
+     const-string/jumbo v0, "ro.build.characteristics"
+ 
+@@ -25,18 +25,6 @@
+ 
+     invoke-static {v0, v1}, Landroid/os/SystemProperties;->get(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+ 
+-    move-result-object v2
 -
--    const-string v1, ""
+-    const-string/jumbo v3, "tablet"
+-
+-    invoke-virtual {v2, v3}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+-
+-    move-result v2
+-
+-    sput-boolean v2, Lcom/samsung/android/core/pm/multiuser/MultiUserSupportsHelper;->IS_TABLET:Z
 -
 -    invoke-static {v0, v1}, Landroid/os/SystemProperties;->get(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 -
--    move-result-object v0
--
--    const-string/jumbo v1, "tablet"
--
--    invoke-virtual {v0, v1}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
--
--    move-result v0
-+    const/4 v0, 0x1
+     move-result-object v0
  
-     sput-boolean v0, Lcom/samsung/android/core/pm/multiuser/MultiUserSupportsHelper;->IS_TABLET:Z
+     const-string/jumbo v1, "desktop"
+@@ -47,38 +35,15 @@
  
+     sput-boolean v0, Lcom/samsung/android/core/pm/multiuser/MultiUserSupportsHelper;->IS_DESKTOP:Z
+ 
+-    const/4 v1, 0x1
+-
+-    if-nez v2, :cond_1
+-
 -    if-eqz v0, :cond_0
 -
-     const/16 v1, 0x8
- 
 -    goto :goto_0
 -
 -    :cond_0
--    const/4 v1, 0x1
+-    move v3, v1
 -
+-    goto :goto_1
+-
+-    :cond_1
 -    :goto_0
-     sput v1, Lcom/samsung/android/core/pm/multiuser/MultiUserSupportsHelper;->DEFAULT_MAX_USERS:I
+-    const/16 v3, 0x8
+-
+-    :goto_1
+-    sput v3, Lcom/samsung/android/core/pm/multiuser/MultiUserSupportsHelper;->DEFAULT_MAX_USERS:I
+-
+-    if-nez v2, :cond_3
++    const/4 v0, 0x1
  
-     sput-boolean v0, Lcom/samsung/android/core/pm/multiuser/MultiUserSupportsHelper;->DEFAULT_ENABLE_STATUS:Z
+-    if-eqz v0, :cond_2
++    sput-boolean v0, Lcom/samsung/android/core/pm/multiuser/MultiUserSupportsHelper;->IS_TABLET:Z
+ 
+-    goto :goto_2
++    const/16 v1, 0x8
+ 
+-    :cond_2
+-    const/4 v1, 0x0
++    sput v1, Lcom/samsung/android/core/pm/multiuser/MultiUserSupportsHelper;->DEFAULT_MAX_USERS:I
+ 
+-    :cond_3
+-    :goto_2
+-    sput-boolean v1, Lcom/samsung/android/core/pm/multiuser/MultiUserSupportsHelper;->DEFAULT_ENABLE_STATUS:Z
++    sput-boolean v0, Lcom/samsung/android/core/pm/multiuser/MultiUserSupportsHelper;->DEFAULT_ENABLE_STATUS:Z
+ 
+     return-void
+ .end method
 -- 
-2.51.0
+2.43.0
 

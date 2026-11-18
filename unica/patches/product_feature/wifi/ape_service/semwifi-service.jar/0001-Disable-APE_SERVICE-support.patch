@@ -4,120 +4,12 @@ Date: Wed, 30 Sep 2026 17:27:38 +0200
 Subject: [PATCH] Disable APE_SERVICE support
 
 ---
- .../server/wifi/SemQboxController.smali       | 49 +---------
- .../android/server/wifi/SemWifiInjector.smali | 94 -------------------
- 2 files changed, 4 insertions(+), 139 deletions(-)
 
-diff --git a/smali/com/samsung/android/server/wifi/SemWifiInjector.smali b/smali/com/samsung/android/server/wifi/SemWifiInjector.smali
-index c68e3ea..9aeb864 100644
---- a/smali/com/samsung/android/server/wifi/SemWifiInjector.smali
-+++ b/smali/com/samsung/android/server/wifi/SemWifiInjector.smali
-@@ -1707,100 +1707,6 @@
-     iput-object v2, v4, Lcom/samsung/android/server/wifi/SemWifiInjector;->mRoamingProcessor:Lcom/samsung/android/server/wifi/strongrssiroaming/SemRoamingProcessor;
- 
-     :goto_3
--    const-string v0, "SemApeController start"
--
--    invoke-static {v12, v0}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
--
--    new-instance v0, Lcom/samsung/android/server/wifi/SemApeController;
--
--    invoke-static {}, Landroid/os/Looper;->myLooper()Landroid/os/Looper;
--
--    move-result-object v2
--
--    invoke-direct {v0, v1, v2}, Lcom/samsung/android/server/wifi/SemApeController;-><init>(Landroid/content/Context;Landroid/os/Looper;)V
--
--    iput-object v0, v4, Lcom/samsung/android/server/wifi/SemWifiInjector;->mApeController:Lcom/samsung/android/server/wifi/SemApeController;
--
--    invoke-virtual {v4}, Lcom/samsung/android/server/wifi/SemWifiInjector;->getFrameworkFacade()Lcom/samsung/android/server/wifi/SemFrameworkFacade;
--
--    move-result-object v1
--
--    invoke-virtual {v0, v1}, Lcom/samsung/android/server/wifi/SemApeController;->registerContentObserver(Lcom/samsung/android/server/wifi/SemFrameworkFacade;)V
--
--    iget-object v0, v4, Lcom/samsung/android/server/wifi/SemWifiInjector;->mApeController:Lcom/samsung/android/server/wifi/SemApeController;
--
--    invoke-virtual {v7, v0}, Lcom/samsung/android/server/wifi/SemWifiOptimizer;->setApeController(Lcom/samsung/android/server/wifi/SemApeController;)V
--
--    new-instance v0, Landroid/os/HandlerThread;
--
--    const-string v1, "SemApeService"
--
--    invoke-direct {v0, v1}, Landroid/os/HandlerThread;-><init>(Ljava/lang/String;)V
--
--    invoke-virtual {v0}, Landroid/os/HandlerThread;->start()V
--
--    const/high16 v1, 0x41700000    # 15.0f
--
--    :try_start_0
--    const-string v2, "18.0"
--
--    invoke-static {v2}, Ljava/lang/Float;->parseFloat(Ljava/lang/String;)F
--
--    move-result v2
--    :try_end_0
--    .catch Ljava/lang/NumberFormatException; {:try_start_0 .. :try_end_0} :catch_0
--
--    goto :goto_4
--
--    :catch_0
--    move v2, v1
--
--    :goto_4
--    new-instance v3, Ljava/lang/StringBuilder;
--
--    const-string v5, "SEP ver="
--
--    invoke-direct {v3, v5}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
--
--    invoke-virtual {v3, v2}, Ljava/lang/StringBuilder;->append(F)Ljava/lang/StringBuilder;
--
--    invoke-virtual {v3}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
--
--    move-result-object v3
--
--    invoke-static {v12, v3}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
--
--    cmpl-float v1, v2, v1
--
--    iget-object v2, v4, Lcom/samsung/android/server/wifi/SemWifiInjector;->mContext:Landroid/content/Context;
--
--    iget-object v3, v4, Lcom/samsung/android/server/wifi/SemWifiInjector;->mClientModeManager:Lcom/samsung/android/server/wifi/SemClientModeManager;
--
--    if-lez v1, :cond_5
--
--    new-instance v1, Lcom/samsung/android/server/wifi/SemApeServiceImplV2;
--
--    invoke-direct {v1, v2, v0, v3}, Lcom/samsung/android/server/wifi/SemApeServiceImplV2;-><init>(Landroid/content/Context;Landroid/os/HandlerThread;Lcom/samsung/android/server/wifi/SemClientModeManager;)V
--
--    iget-object v0, v4, Lcom/samsung/android/server/wifi/SemWifiInjector;->mWifiCtlFeatureMediator:Lcom/samsung/android/server/wifi/SemWifiCtlFeatureMediator;
--
--    if-eqz v0, :cond_4
--
--    invoke-virtual {v1, v0}, Lcom/samsung/android/server/wifi/SemApeServiceImplV2;->setMediator(Lcom/samsung/android/server/wifi/SemWifiCtlFeatureMediator;)V
--
--    :cond_4
--    iput-object v1, v4, Lcom/samsung/android/server/wifi/SemWifiInjector;->mApeService:Lcom/samsung/android/server/wifi/SemApeService;
--
--    goto :goto_5
--
--    :cond_5
--    new-instance v1, Lcom/samsung/android/server/wifi/SemApeServiceImplV1;
--
--    invoke-direct {v1, v2, v0, v3}, Lcom/samsung/android/server/wifi/SemApeServiceImplV1;-><init>(Landroid/content/Context;Landroid/os/HandlerThread;Lcom/samsung/android/server/wifi/SemClientModeManager;)V
--
--    iput-object v1, v4, Lcom/samsung/android/server/wifi/SemWifiInjector;->mApeService:Lcom/samsung/android/server/wifi/SemApeService;
--
--    :goto_5
-     new-instance v0, Lcom/samsung/android/server/wifi/SemQboxController;
- 
-     iget-object v1, v4, Lcom/samsung/android/server/wifi/SemWifiInjector;->mContext:Landroid/content/Context;
 diff --git a/smali/com/samsung/android/server/wifi/SemQboxController.smali b/smali/com/samsung/android/server/wifi/SemQboxController.smali
-index b678836..bdc2234 100644
+index 6a0ebafd015b4ae860a7c4c52ca6d221911c967e..bfa88a761f52da1e2309aaacda3b354cb2fe7eef 100644
 --- a/smali/com/samsung/android/server/wifi/SemQboxController.smali
 +++ b/smali/com/samsung/android/server/wifi/SemQboxController.smali
-@@ -1010,61 +1010,20 @@
+@@ -994,61 +994,20 @@
  .end method
  
  .method public registerContentObserver(Lcom/samsung/android/server/wifi/SemFrameworkFacade;)V
@@ -183,6 +75,66 @@ index b678836..bdc2234 100644
      return-void
  .end method
  
+diff --git a/smali/com/samsung/android/server/wifi/SemWifiInjector.smali b/smali/com/samsung/android/server/wifi/SemWifiInjector.smali
+index c5c0023340e0300a92ef3d047c05385de6d2b070..b51bacde89261f6713a4a945aa61aaf7e1d138c9 100644
+--- a/smali/com/samsung/android/server/wifi/SemWifiInjector.smali
++++ b/smali/com/samsung/android/server/wifi/SemWifiInjector.smali
+@@ -1859,55 +1859,6 @@
+     iput-object v2, v4, Lcom/samsung/android/server/wifi/SemWifiInjector;->mRoamingProcessor:Lcom/samsung/android/server/wifi/strongrssiroaming/SemRoamingProcessor;
+ 
+     :goto_3
+-    const-string v0, "SemApeController start"
+-
+-    invoke-static {v11, v0}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
+-
+-    new-instance v0, Lcom/samsung/android/server/wifi/SemApeController;
+-
+-    invoke-static {}, Landroid/os/Looper;->myLooper()Landroid/os/Looper;
+-
+-    move-result-object v2
+-
+-    invoke-direct {v0, v1, v2}, Lcom/samsung/android/server/wifi/SemApeController;-><init>(Landroid/content/Context;Landroid/os/Looper;)V
+-
+-    iput-object v0, v4, Lcom/samsung/android/server/wifi/SemWifiInjector;->mApeController:Lcom/samsung/android/server/wifi/SemApeController;
+-
+-    invoke-virtual {v4}, Lcom/samsung/android/server/wifi/SemWifiInjector;->getFrameworkFacade()Lcom/samsung/android/server/wifi/SemFrameworkFacade;
+-
+-    move-result-object v2
+-
+-    invoke-virtual {v0, v2}, Lcom/samsung/android/server/wifi/SemApeController;->registerContentObserver(Lcom/samsung/android/server/wifi/SemFrameworkFacade;)V
+-
+-    iget-object v0, v4, Lcom/samsung/android/server/wifi/SemWifiInjector;->mApeController:Lcom/samsung/android/server/wifi/SemApeController;
+-
+-    invoke-virtual {v8, v0}, Lcom/samsung/android/server/wifi/SemWifiOptimizer;->setApeController(Lcom/samsung/android/server/wifi/SemApeController;)V
+-
+-    new-instance v0, Landroid/os/HandlerThread;
+-
+-    const-string v2, "SemApeService"
+-
+-    invoke-direct {v0, v2}, Landroid/os/HandlerThread;-><init>(Ljava/lang/String;)V
+-
+-    invoke-virtual {v0}, Landroid/os/HandlerThread;->start()V
+-
+-    const-string v2, "SEP ver=18.5"
+-
+-    invoke-static {v11, v2}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
+-
+-    new-instance v2, Lcom/samsung/android/server/wifi/SemApeServiceImplV2;
+-
+-    invoke-direct {v2, v1, v0, v14}, Lcom/samsung/android/server/wifi/SemApeServiceImplV2;-><init>(Landroid/content/Context;Landroid/os/HandlerThread;Lcom/samsung/android/server/wifi/SemClientModeManager;)V
+-
+-    iget-object v0, v4, Lcom/samsung/android/server/wifi/SemWifiInjector;->mWifiCtlFeatureMediator:Lcom/samsung/android/server/wifi/SemWifiCtlFeatureMediator;
+-
+-    if-eqz v0, :cond_4
+-
+-    invoke-virtual {v2, v0}, Lcom/samsung/android/server/wifi/SemApeServiceImplV2;->setMediator(Lcom/samsung/android/server/wifi/SemWifiCtlFeatureMediator;)V
+-
+-    :cond_4
+-    iput-object v2, v4, Lcom/samsung/android/server/wifi/SemWifiInjector;->mApeService:Lcom/samsung/android/server/wifi/SemApeService;
+-
+     new-instance v0, Lcom/samsung/android/server/wifi/SemQboxController;
+ 
+     invoke-static {}, Landroid/os/Looper;->myLooper()Landroid/os/Looper;
 -- 
-2.53.0
+2.43.0
 

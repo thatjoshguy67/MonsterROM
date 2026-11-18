@@ -4,21 +4,20 @@ Date: Wed, 30 Sep 2026 15:20:43 +0200
 Subject: [PATCH] Register UN1CA Settings search providers
 
 ---
- ...ureProviderImpl$$ExternalSyntheticLambda0.smali | 2 ++
- 1 file changed, 2 insertions(+)
 
-diff --git a/smali_classes2/com/android/settings/search/SearchFeatureProviderImpl$$ExternalSyntheticLambda0.smali b/smali_classes2/com/android/settings/search/SearchFeatureProviderImpl$$ExternalSyntheticLambda0.smali
-index 77c277e..f7a12ef 100644
---- a/smali_classes2/com/android/settings/search/SearchFeatureProviderImpl$$ExternalSyntheticLambda0.smali
-+++ b/smali_classes2/com/android/settings/search/SearchFeatureProviderImpl$$ExternalSyntheticLambda0.smali
-@@ -2246,5 +2246,7 @@
-     goto :goto_1
+diff --git a/smali/com/android/settings/search/SearchFeatureProviderImpl$$ExternalSyntheticLambda0.smali b/smali/com/android/settings/search/SearchFeatureProviderImpl$$ExternalSyntheticLambda0.smali
+index d95eb92859e093354ee8a72030fc145f36f6dc7d..e480e12c98dc441bd84d93e1cdb658ac609fc1f1 100644
+--- a/smali/com/android/settings/search/SearchFeatureProviderImpl$$ExternalSyntheticLambda0.smali
++++ b/smali/com/android/settings/search/SearchFeatureProviderImpl$$ExternalSyntheticLambda0.smali
+@@ -2651,6 +2651,8 @@
+     goto :goto_3
  
-     :cond_1
+     :cond_4
 +    invoke-static {p0}, Lio/mesalabs/unica/search/UnicaSearchIndexableResources;->register(Lcom/android/settingslib/search/SearchIndexableResourcesBase;)V
 +
      return-object p0
- .end method
+ 
+     :cond_5
 -- 
-2.53.0
+2.43.0
 

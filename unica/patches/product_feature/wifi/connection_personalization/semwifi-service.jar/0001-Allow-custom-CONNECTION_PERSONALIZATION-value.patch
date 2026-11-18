@@ -4,22 +4,24 @@ Date: Wed, 30 Sep 2026 17:29:49 +0200
 Subject: [PATCH] Allow custom CONNECTION_PERSONALIZATION value
 
 ---
- smali/com/samsung/android/server/wifi/SemWifiInjector.smali | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/smali/com/samsung/android/server/wifi/SemWifiInjector.smali b/smali/com/samsung/android/server/wifi/SemWifiInjector.smali
-index 3e239da..92d9bdd 100644
+index c5c0023340e0300a92ef3d047c05385de6d2b070..b8b652a17ea3e3e2b8edd325ed714d00b7c92b26 100644
 --- a/smali/com/samsung/android/server/wifi/SemWifiInjector.smali
 +++ b/smali/com/samsung/android/server/wifi/SemWifiInjector.smali
-@@ -1906,7 +1906,7 @@
+@@ -1982,7 +1982,11 @@
  
-     iput-object v0, v4, Lcom/samsung/android/server/wifi/SemWifiInjector;->mWifiCoexManager:Lcom/samsung/android/server/wifi/SemWifiCoexManager;
+     new-instance v2, Lcom/samsung/android/server/wifi/connection/ConnectionPersonalizer;
  
--    const-string v0, "3"
-+    const-string v0, "CONFIG_CONNECTION_PERSONALIZATION"
+-    const/4 v3, 0x3
++    const-string v3, "CONFIG_CONNECTION_PERSONALIZATION"
++
++    invoke-static {v3}, Ljava/lang/Integer;->parseInt(Ljava/lang/String;)I
++
++    move-result v3
  
-     invoke-static {v0}, Ljava/lang/Integer;->parseInt(Ljava/lang/String;)I
+     invoke-direct {v2, v1, v4, v0, v3}, Lcom/samsung/android/server/wifi/connection/ConnectionPersonalizer;-><init>(Landroid/content/Context;Lcom/samsung/android/server/wifi/SemWifiInjector;Landroid/os/HandlerThread;I)V
  
 -- 
-2.53.0
+2.43.0
 

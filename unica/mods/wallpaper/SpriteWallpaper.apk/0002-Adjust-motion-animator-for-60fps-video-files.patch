@@ -4,21 +4,20 @@ Date: Fri, 30 May 2025 00:31:50 +0200
 Subject: [PATCH] Adjust motion animator for 60fps video files
 
 ---
- .../wallpaper/live/infinity/c.smali           | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/smali/com/samsung/android/wallpaper/live/infinity/c.smali b/smali/com/samsung/android/wallpaper/live/infinity/c.smali
-index dd20a5f..fd040f3 100644
+index 47dd4ba323860c2b912222ac407064879b348d7b..70669dec48065a26ada79de24e2e4143eb1eb0ff 100644
 --- a/smali/com/samsung/android/wallpaper/live/infinity/c.smali
 +++ b/smali/com/samsung/android/wallpaper/live/infinity/c.smali
-@@ -45,7 +45,7 @@
+@@ -55,7 +55,7 @@
  .method static constructor <clinit>()V
      .locals 1
  
 -    const-string v0, "AOD AOD 0 300 1200 0.17 0.17 0.1 1\nAOD LOCK 0 700 1000 0.33 0 0.1 1\nAOD HOME 0 2040 2500 0.33 0 0.1 1\nLOCK HOME 700 2040 1500 0.17 0.17 0.1 1\nLOCK TOUCH 700 1750 1500 0.17 0.17 0.1 1"
 +    const-string v0, "AOD AOD 0 150 1200 0.17 0.17 0.1 1\nAOD LOCK 0 350 1000 0.33 0 0.1 1\nAOD HOME 0 1020 2500 0.33 0 0.1 1\nLOCK HOME 350 1020 1500 0.17 0.17 0.1 1\nLOCK TOUCH 350 875 1500 0.17 0.17 0.1 1"
  
-     sput-object v0, Lcom/samsung/android/wallpaper/live/infinity/c;->q:Ljava/lang/String;
+     sput-object v0, Lcom/samsung/android/wallpaper/live/infinity/c;->v:Ljava/lang/String;
  
 -- 
-2.51.1
+2.43.0
+

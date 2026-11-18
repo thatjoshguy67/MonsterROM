@@ -1,23 +1,27 @@
 Subject: [PATCH] Preserve vendor device and model detection in One UI 9 CoreRune
 
-diff --git a/smali_classes6/com/samsung/android/rune/CoreRune.smali b/smali_classes6/com/samsung/android/rune/CoreRune.smali
---- a/smali_classes6/com/samsung/android/rune/CoreRune.smali
-+++ b/smali_classes6/com/samsung/android/rune/CoreRune.smali
-@@ -2799,7 +2799,7 @@
+diff --git a/smali_classes5/com/samsung/android/rune/CoreRune.smali b/smali_classes5/com/samsung/android/rune/CoreRune.smali
+index 17d244d8b5ae05e54f036fdd00ddd4bb553f1efe..d91dc4d8472abfb072f5c9dfe06993e45817e309 100644
+--- a/smali_classes5/com/samsung/android/rune/CoreRune.smali
++++ b/smali_classes5/com/samsung/android/rune/CoreRune.smali
+@@ -3009,7 +3009,7 @@
  
-     sput-boolean v4, Lcom/samsung/android/rune/CoreRune;->FW_TEMP_TOO_MANY_INSETS_LEASH_BUG_FIX:Z
+     sput-boolean v0, Lcom/samsung/android/rune/CoreRune;->FW_USE_LITE_TASK_DESCRIPTION_CHANGED:Z
  
--    const-string/jumbo v1, "ro.product.device"
-+    const-string/jumbo v1, "ro.product.vendor.device"
+-    const-string/jumbo v0, "ro.product.device"
++    const-string/jumbo v0, "ro.product.vendor.device"
  
-     invoke-static {v1}, Landroid/os/SystemProperties;->get(Ljava/lang/String;)Ljava/lang/String;
+     invoke-static {v0}, Landroid/os/SystemProperties;->get(Ljava/lang/String;)Ljava/lang/String;
  
-@@ -4060,7 +4060,7 @@
+@@ -4161,7 +4161,7 @@
  
-     const-string v12, "None"
+     const-string/jumbo v11, "None"
  
--    const-string/jumbo v14, "ro.product.model"
-+    const-string/jumbo v14, "ro.product.vendor.model"
+-    const-string/jumbo v13, "ro.product.model"
++    const-string/jumbo v13, "ro.product.vendor.model"
  
-     invoke-static {v14, v12}, Landroid/os/SystemProperties;->get(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+     invoke-static {v13, v11}, Landroid/os/SystemProperties;->get(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
  
+-- 
+2.43.0
+

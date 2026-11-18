@@ -4,16 +4,14 @@ Date: Wed, 30 Sep 2026 17:27:38 +0200
 Subject: [PATCH] Match hotspot capabilities to target
 
 ---
- .../samsung/android/server/wifi/ap/SemWifiApServiceImpl.smali | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
 
 diff --git a/smali/com/samsung/android/server/wifi/ap/SemWifiApServiceImpl.smali b/smali/com/samsung/android/server/wifi/ap/SemWifiApServiceImpl.smali
-index b2225a2..d8e0b14 100644
+index 1abaaee71d4da09b682d59a4a36fb57b3d00a1fd..b945b6bd879a1337cb973a23a864d43865d5258f 100644
 --- a/smali/com/samsung/android/server/wifi/ap/SemWifiApServiceImpl.smali
 +++ b/smali/com/samsung/android/server/wifi/ap/SemWifiApServiceImpl.smali
-@@ -13946,9 +13946,7 @@
+@@ -14774,9 +14774,7 @@
  
-     :cond_2
+     :cond_4
      :goto_0
 -    invoke-virtual {p0}, Lcom/samsung/android/server/wifi/ap/SemWifiApServiceImpl;->isRegionFor5GCountry()Z
 -
@@ -23,5 +21,5 @@ index b2225a2..d8e0b14 100644
      .catchall {:try_start_0 .. :try_end_0} :catchall_0
  
 -- 
-2.53.0
+2.43.0
 

@@ -4,31 +4,23 @@ Date: Wed, 30 Sep 2026 17:29:49 +0200
 Subject: [PATCH] Allow custom booster thresholds values
 
 ---
- .../server/wifi/SemFrameworkFacade.smali      | 32 +++++++++++--------
- 1 file changed, 18 insertions(+), 14 deletions(-)
 
 diff --git a/smali/com/samsung/android/server/wifi/SemFrameworkFacade.smali b/smali/com/samsung/android/server/wifi/SemFrameworkFacade.smali
-index 7579c0b..33f8e08 100644
+index a620c6453213c70d16fd922bd3ff703d577dcc7e..273ea25e748abc652573cdf9e6d6da61d20c9814 100644
 --- a/smali/com/samsung/android/server/wifi/SemFrameworkFacade.smali
 +++ b/smali/com/samsung/android/server/wifi/SemFrameworkFacade.smali
-@@ -337,35 +337,39 @@
+@@ -355,11 +355,41 @@
+ .end method
+ 
  .method public getBoosterThresholds()[I
-     .locals 3
-
--    const-string p0, "0"
+-    .locals 0
++    .locals 3
+ 
+-    const/4 p0, 0x0
 +    const-string p0, "CONFIG_DATA_ACTIVITY_AFFINITY_BOOSTER_THRESHOLD"
-
-     invoke-static {p0}, Ljava/lang/Integer;->parseInt(Ljava/lang/String;)I
-
--    move-result v0
--
--    const/high16 v1, 0x100000
--
--    mul-int/2addr v0, v1
--
--    div-int/lit8 v0, v0, 0x8
--
--    invoke-static {p0}, Ljava/lang/Integer;->parseInt(Ljava/lang/String;)I
++
++    invoke-static {p0}, Ljava/lang/Integer;->parseInt(Ljava/lang/String;)I
++
 +    move-result p0
 +
 +    const/high16 v0, 0x100000
@@ -50,27 +42,18 @@ index 7579c0b..33f8e08 100644
 +    const-string v2, "CONFIG_L1SS_DISABLE_THRESHOLD"
 +
 +    invoke-static {v2}, Ljava/lang/Integer;->parseInt(Ljava/lang/String;)I
-
-     move-result v2
-
--    mul-int/2addr v2, v1
++
++    move-result v2
++
 +    mul-int/2addr v2, v0
-
-     div-int/lit8 v2, v2, 0x8
-
--    invoke-static {p0}, Ljava/lang/Integer;->parseInt(Ljava/lang/String;)I
--
--    move-result p0
--
--    mul-int/2addr p0, v1
--
--    div-int/lit8 p0, p0, 0x8
--
--    filled-new-array {v0, v2, p0}, [I
++
++    div-int/lit8 v2, v2, 0x8
+ 
+-    filled-new-array {p0, p0, p0}, [I
 +    filled-new-array {p0, v1, v2}, [I
-
+ 
      move-result-object p0
-
---
-2.53.0
+ 
+-- 
+2.43.0
 

@@ -4,18 +4,15 @@ Date: Wed, 30 Sep 2026 14:59:58 +0200
 Subject: [PATCH] Disable virtual vibration support
 
 ---
- .../vibrator/VibratorManagerService.smali     |  62 ---
- .../vibrator/VirtualVibSoundHelper.smali      | 378 +-----------------
- 2 files changed, 2 insertions(+), 438 deletions(-)
 
 diff --git a/smali_classes2/com/android/server/vibrator/VibratorManagerService.smali b/smali_classes2/com/android/server/vibrator/VibratorManagerService.smali
-index 7f88495..ee5f932 100644
+index 62cf3160e3739d6e81f40b4e6e78cda13629f91c..f2a700a636c46bf4e7865801fcfc1d1a6d363546 100644
 --- a/smali_classes2/com/android/server/vibrator/VibratorManagerService.smali
 +++ b/smali_classes2/com/android/server/vibrator/VibratorManagerService.smali
-@@ -1708,68 +1708,6 @@
-
+@@ -1752,68 +1752,6 @@
+ 
      iput-object v1, v0, Lcom/android/server/vibrator/VirtualVibSoundHelper;->mAudioSettingsHelper:Lcom/samsung/android/server/audio/AudioSettingsHelper;
-
+ 
 -    new-instance v1, Landroid/media/SoundPool$Builder;
 -
 -    invoke-direct {v1}, Landroid/media/SoundPool$Builder;-><init>()V
@@ -79,14 +76,88 @@ index 7f88495..ee5f932 100644
 -    iput v1, v0, Lcom/android/server/vibrator/VirtualVibSoundHelper;->mVirtualSoundId:I
 -
      invoke-static {}, Ljava/lang/invoke/VarHandle;->storeStoreFence()V
-
+ 
      iput-object v0, p0, Lcom/android/server/vibrator/VibratorManagerService;->mVirtualVibSoundHelper:Lcom/android/server/vibrator/VirtualVibSoundHelper;
+@@ -11644,72 +11582,8 @@
+ .end method
+ 
+ .method public final stopVirtualSoundIfNeeded(Ljava/lang/String;)V
+-    .locals 3
+-
+-    iget-object p0, p0, Lcom/android/server/vibrator/VibratorManagerService;->mVirtualVibSoundHelper:Lcom/android/server/vibrator/VirtualVibSoundHelper;
+-
+-    if-eqz p0, :cond_2
+-
+-    const-string/jumbo v0, "stop virtual sound : "
+-
+-    iget-boolean v1, p0, Lcom/android/server/vibrator/VirtualVibSoundHelper;->mIsVirtualSoundPlaying:Z
+-
+-    if-eqz v1, :cond_2
+-
+-    iget-object v1, p0, Lcom/android/server/vibrator/VirtualVibSoundHelper;->mSoundPool:Landroid/media/SoundPool;
+-
+-    const-string/jumbo v2, "VibratorManagerService"
+-
+-    if-eqz v1, :cond_1
+-
+-    iget v1, p0, Lcom/android/server/vibrator/VirtualVibSoundHelper;->mVirtualSoundId:I
+-
+-    if-nez v1, :cond_0
+-
+-    goto :goto_0
+-
+-    :cond_0
+-    :try_start_0
+-    new-instance v1, Ljava/lang/StringBuilder;
+-
+-    invoke-direct {v1, v0}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
+-
+-    invoke-virtual {v1, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+-
+-    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+-
+-    move-result-object p1
+-
+-    invoke-static {v2, p1}, Landroid/util/Slog;->d(Ljava/lang/String;Ljava/lang/String;)I
+-
+-    const/4 p1, 0x0
+-
+-    iput-boolean p1, p0, Lcom/android/server/vibrator/VirtualVibSoundHelper;->mIsVirtualSoundPlaying:Z
+-
+-    iget-object p1, p0, Lcom/android/server/vibrator/VirtualVibSoundHelper;->mSoundPool:Landroid/media/SoundPool;
+-
+-    iget p0, p0, Lcom/android/server/vibrator/VirtualVibSoundHelper;->mStreamId:I
+-
+-    invoke-virtual {p1, p0}, Landroid/media/SoundPool;->stop(I)V
+-    :try_end_0
+-    .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
+-
+-    return-void
+-
+-    :catch_0
+-    const-string/jumbo p0, "failed stopping virtual sound"
+-
+-    invoke-static {v2, p0}, Landroid/util/Slog;->e(Ljava/lang/String;Ljava/lang/String;)I
+-
+-    return-void
+-
+-    :cond_1
+-    :goto_0
+-    const-string/jumbo p0, "cannot stop virtual sound"
+-
+-    invoke-static {v2, p0}, Landroid/util/Slog;->e(Ljava/lang/String;Ljava/lang/String;)I
++    .locals 0
+ 
+-    :cond_2
+     return-void
+ .end method
+ 
 diff --git a/smali_classes2/com/android/server/vibrator/VirtualVibSoundHelper.smali b/smali_classes2/com/android/server/vibrator/VirtualVibSoundHelper.smali
-index 5012b38..308bb4b 100644
+index 93c1ee27a43ac8f135c98f247ad5cccad6bf65cf..bc54c3db9e3b368f57a60cd95cb0fea46f799554 100644
 --- a/smali_classes2/com/android/server/vibrator/VirtualVibSoundHelper.smali
 +++ b/smali_classes2/com/android/server/vibrator/VirtualVibSoundHelper.smali
-@@ -19,387 +19,13 @@
-
+@@ -19,351 +19,7 @@
+ 
  # virtual methods
  .method public final playVirtualSoundIfNeeded(Ljava/lang/String;Landroid/os/VibrationAttributes;Z)V
 -    .locals 9
@@ -207,6 +278,30 @@ index 5012b38..308bb4b 100644
 -
 -    move-result v6
 -
+-    const/16 v7, 0x1a
+-
+-    if-eq v6, v7, :cond_7
+-
+-    invoke-virtual {v5}, Landroid/media/AudioDeviceInfo;->getType()I
+-
+-    move-result v6
+-
+-    const/16 v7, 0x1b
+-
+-    if-eq v6, v7, :cond_7
+-
+-    invoke-virtual {v5}, Landroid/media/AudioDeviceInfo;->getType()I
+-
+-    move-result v6
+-
+-    const/16 v7, 0x1e
+-
+-    if-eq v6, v7, :cond_7
+-
+-    invoke-virtual {v5}, Landroid/media/AudioDeviceInfo;->getType()I
+-
+-    move-result v6
+-
 -    const/16 v7, 0x16
 -
 -    if-ne v6, v7, :cond_5
@@ -233,7 +328,7 @@ index 5012b38..308bb4b 100644
 -    :goto_1
 -    const-string/jumbo p1, "VibrationCustomSettings"
 -
--    const-string/jumbo p3, "skip virtual sound: connected A2DP or USB_HEADSET"
+-    const-string/jumbo p3, "skip virtual sound: connected A2DP, BLE or USB_HEADSET"
 -
 -    invoke-static {p1, p3}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
 -
@@ -411,70 +506,9 @@ index 5012b38..308bb4b 100644
 -
 -    invoke-static {p0, p1}, Landroid/util/Slog;->d(Ljava/lang/String;Ljava/lang/String;)I
 +    .locals 0
-
+ 
      return-void
  .end method
-
- .method public final stopVirtualSound(Ljava/lang/String;)V
--    .locals 3
--
--    const-string/jumbo v0, "stop virtual sound : "
--
--    iget-boolean v1, p0, Lcom/android/server/vibrator/VirtualVibSoundHelper;->mIsVirtualSoundPlaying:Z
--
--    if-eqz v1, :cond_2
--
--    iget-object v1, p0, Lcom/android/server/vibrator/VirtualVibSoundHelper;->mSoundPool:Landroid/media/SoundPool;
--
--    const-string/jumbo v2, "VibratorManagerService"
--
--    if-eqz v1, :cond_1
--
--    iget v1, p0, Lcom/android/server/vibrator/VirtualVibSoundHelper;->mVirtualSoundId:I
--
--    if-nez v1, :cond_0
--
--    goto :goto_0
--
--    :cond_0
--    :try_start_0
--    invoke-virtual {v0, p1}, Ljava/lang/String;->concat(Ljava/lang/String;)Ljava/lang/String;
--
--    move-result-object p1
--
--    invoke-static {v2, p1}, Landroid/util/Slog;->d(Ljava/lang/String;Ljava/lang/String;)I
--
--    const/4 p1, 0x0
--
--    iput-boolean p1, p0, Lcom/android/server/vibrator/VirtualVibSoundHelper;->mIsVirtualSoundPlaying:Z
--
--    iget-object p1, p0, Lcom/android/server/vibrator/VirtualVibSoundHelper;->mSoundPool:Landroid/media/SoundPool;
--
--    iget p0, p0, Lcom/android/server/vibrator/VirtualVibSoundHelper;->mStreamId:I
--
--    invoke-virtual {p1, p0}, Landroid/media/SoundPool;->stop(I)V
--    :try_end_0
--    .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
--
--    return-void
--
--    :catch_0
--    const-string/jumbo p0, "failed stopping virtual sound"
--
--    invoke-static {v2, p0}, Landroid/util/Slog;->e(Ljava/lang/String;Ljava/lang/String;)I
--
--    return-void
--
--    :cond_1
--    :goto_0
--    const-string/jumbo p0, "cannot stop virtual sound"
--
--    invoke-static {v2, p0}, Landroid/util/Slog;->e(Ljava/lang/String;Ljava/lang/String;)I
-+    .locals 0
-
--    :cond_2
-     return-void
- .end method
---
-2.53.0
+-- 
+2.43.0
 
